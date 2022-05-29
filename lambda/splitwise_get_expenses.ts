@@ -11,6 +11,9 @@ export const handler: Handler = async (
 ): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
+
+  const { SPLITWISE_API_KEY_PARAMETER_NAME } = process.env;
+
   return {
     statusCode: 200,
     body: JSON.stringify({

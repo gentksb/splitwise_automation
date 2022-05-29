@@ -1,24 +1,31 @@
-import {
-  Stack,
-  StackProps,
-  aws_stepfunctions as sfn,
-  aws_stepfunctions_tasks as tasks,
-} from "aws-cdk-lib";
+import { Stack, StackProps, aws_ssm } from "aws-cdk-lib";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+import { ParameterType, StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
 export class StepStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
+    const splitwise_apikey_parameter = new StringParameter(
+      this,
+      "splitwise_apikey_parameter",
+      {
+        parameterName: "splitwise_apikey",
+        stringValue: "dummy",
+        type: ParameterType.STRING,
+      }
+    );
+
     const hellofunction = new NodejsFunction(this, "helloWorld", {
       entry: "lambda/splitwise_get_expenses.ts",
-    });
-
-    const stateMachine = new sfn.StateMachine(this, "MyStateMachine", {
-      definition: new tasks.LambdaInvoke(this, "MyLambdaTask", {
-        lambdaFunction: hellofunction,
-      }).next(new sfn.Succeed(this, "GreetedWorld")),
+      // parameter storeの直参照はできないので、パラメータ名のみを渡す
+      environment: {
+        SPLITWISE_API_KEY_PARAMETER_NAME:
+          splitwise_apikey_parameter.parameterName,
+      },
+      runtime: Runtime.NODEJS_16_X,
     });
   }
 }
