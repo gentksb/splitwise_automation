@@ -72,44 +72,52 @@ export const handler: Handler = async (
   );
 
   // 更新処理
-  willSplitExpenses.forEach(async (expense) => {
-    console.log("更新処理開始 ExpenseID: ", expense.id);
-    const numCost = parseInt(expense.cost);
-    const payerId = expense.repayments[0].to;
-    const payerOwedShare =
-      payerId === splitData.gen.userId
-        ? (numCost * splitData.gen.rate).toPrecision()
-        : (numCost * splitData.yu.rate).toPrecision();
-    const nonPayerOwedShare = numCost - parseInt(payerOwedShare);
+  const response = await Promise.all(
+    willSplitExpenses.map(async (expense) => {
+      console.log("更新処理開始 ExpenseID: ", expense.id);
 
-    const newSplitData = {
-      users__0__user_id: payerId,
-      users__0__paid_share: expense.cost,
-      users__0__owed_share: payerOwedShare,
-      users__1__user_id:
+      const numCost = parseInt(expense.cost);
+      const payerId = expense.repayments[0].to;
+      const payerOwedShare =
         payerId === splitData.gen.userId
-          ? splitData.yu.userId
-          : splitData.gen.userId,
-      users__1__paid_share: "0",
-      users__1__owed_share: nonPayerOwedShare.toString(),
-    };
+          ? Math.round(numCost * splitData.gen.rate).toPrecision()
+          : Math.round(numCost * splitData.yu.rate).toPrecision();
+      const nonPayerOwedShare = numCost - parseInt(payerOwedShare);
 
-    const updateResponse = await axios.post(
-      `https://secure.splitwise.com/api/v3.0/update_expense/${expense.id}`,
-      {
-        group_id: 31566863,
-        ...newSplitData,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          ...axios_option.headers,
-        },
-      }
-    );
+      const newSplitData = {
+        users__0__user_id: payerId,
+        users__0__paid_share: expense.cost,
+        users__0__owed_share: payerOwedShare,
+        users__1__user_id:
+          payerId === splitData.gen.userId
+            ? splitData.yu.userId
+            : splitData.gen.userId,
+        users__1__paid_share: "0",
+        users__1__owed_share: nonPayerOwedShare.toString(),
+      };
 
-    console.log(JSON.stringify(updateResponse));
-  });
+      await axios
+        .post(
+          `https://secure.splitwise.com/api/v3.0/update_expense/${expense.id}`,
+          {
+            group_id: 31566863,
+            ...newSplitData,
+          },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              ...axios_option.headers,
+            },
+          }
+        )
+        .then((response) => {
+          if (response.data.errors.base) {
+            console.log(response.data.errors.base);
+          }
+        });
+      return;
+    })
+  );
 
   const logMessage =
     expensesList.length === 0
