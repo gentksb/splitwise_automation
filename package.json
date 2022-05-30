@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "cdk synth --no-staging && sam local invoke helloWorld --no-event -t ./cdk.out/SplitWiseAutomationStack.template.json --env-vars .env.lambda.local",
+    "test": "cdk synth --no-staging && sam local invoke splitwise_expense_automation --no-event -t ./cdk.out/SplitWiseAutomationStack.template.json --env-vars .env.lambda.local",
     "cdk": "cdk"
   },
   "devDependencies": {

@@ -18,14 +18,18 @@ export class SplitWiseAutomationStack extends Stack {
       }
     );
 
-    const hellofunction = new NodejsFunction(this, "helloWorld", {
-      entry: "lambda/splitwise_get_expenses.ts",
-      // parameter storeの直参照はできないので、パラメータ名のみを渡す
-      environment: {
-        SPLITWISE_API_KEY_PARAMETER_NAME:
-          splitwise_apikey_parameter.parameterName,
-      },
-      runtime: Runtime.NODEJS_16_X,
-    });
+    const splitwise_expense_automation = new NodejsFunction(
+      this,
+      "splitwise_expense_automation",
+      {
+        entry: "lambda/splitwise_get_expenses.ts",
+        // parameter storeの直参照はできないので、パラメータ名のみを渡す
+        environment: {
+          SPLITWISE_API_KEY_PARAMETER_NAME:
+            splitwise_apikey_parameter.parameterName,
+        },
+        runtime: Runtime.NODEJS_16_X,
+      }
+    );
   }
 }
