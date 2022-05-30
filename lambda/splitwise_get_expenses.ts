@@ -72,7 +72,7 @@ export const handler: Handler = async (
   );
 
   // 更新処理
-  const response = await Promise.all(
+  await Promise.all(
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
 
@@ -112,7 +112,7 @@ export const handler: Handler = async (
         )
         .then((response) => {
           if (response.data.errors.base) {
-            console.log(response.data.errors.base);
+            console.error(response.data.errors.base);
           }
         });
       return;
