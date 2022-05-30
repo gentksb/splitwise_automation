@@ -113,6 +113,8 @@ export const handler: Handler = async (
         .then((response) => {
           if (response.data.errors.base) {
             console.error(response.data.errors.base);
+          } else {
+            console.log(response);
           }
         });
       return;
