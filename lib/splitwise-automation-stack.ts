@@ -4,7 +4,7 @@ import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { ParameterType, StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
-export class StepStack extends Stack {
+export class SplitWiseAutomationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
