@@ -1,8 +1,8 @@
 {
-  "name": "step",
+  "name": "splitwise-automation",
   "version": "0.1.0",
   "bin": {
-    "step": "bin/step.js"
+    "step": "bin/splitwise-automation.js"
   },
   "scripts": {
     "build": "tsc",
