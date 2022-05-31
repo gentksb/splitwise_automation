@@ -1,4 +1,4 @@
-import { Stack, StackProps, aws_ssm, Duration } from "aws-cdk-lib";
+import { Stack, StackProps, Duration, aws_sns, aws_chatbot } from "aws-cdk-lib";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -32,7 +32,7 @@ export class SplitWiseAutomationStack extends Stack {
             splitwise_apikey_parameter.stringValue,
         },
         runtime: Runtime.NODEJS_16_X,
-        logRetention: RetentionDays.ONE_MONTH,
+        logRetention: RetentionDays.ONE_WEEK,
       }
     );
 

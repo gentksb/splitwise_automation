@@ -17,6 +17,9 @@ const splitData = {
   },
 };
 
+const slackWebhookUrl =
+  "https://hooks.slack.com/services/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";
+
 export const handler: Handler = async (
   event: APIGatewayEvent,
   context: Context
@@ -111,12 +114,25 @@ export const handler: Handler = async (
           }
         )
         .then((response) => {
-          if (response.data.errors.base) {
-            console.error(response.data.errors.base);
-            //slack通知を入れる
+          if (Object.keys(response.data.errors).length === 0) {
+            console.error(response.data.errors);
+            axios.post(slackWebhookUrl, {
+              text: `割り勘処理でエラー発生\n ID:${response.data.expenses[0].id}\n${response.data.errors.shares}\n${response.data.errors.base}`,
+              username: "SplitWise bot",
+              icon_emoji: ":splitwise:",
+            });
           } else {
-            console.log(response);
-            //slack通知を入れる
+            console.log(response.data);
+            axios.post(slackWebhookUrl, {
+              text: `割り勘補正完了\n
+              ID:${response.data.expenses[0].id} を下記の通り分割しました\n
+              内容: ${response.data.expenses[0].description}\n
+              金額: ${response.data.expenses[0].cost}円\n
+              ${response.data.expenses[0].users[0].first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円\n
+              ${response.data.expenses[0].users[1].first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円`,
+              username: "SplitWise bot",
+              icon_emoji: ":splitwise:",
+            });
           }
         });
       return;
@@ -127,7 +143,7 @@ export const handler: Handler = async (
     expensesList.length === 0
       ? "取得対象の精算経費がありません"
       : `直近${expensesList.length}の経費のうち、${noPaymentExpenses.length}件が未清算、${willSplitExpenses.length}件を割り勘処理しました`;
-  console.log(logMessage)
+  console.log(logMessage);
 
   return {
     statusCode: 200,
