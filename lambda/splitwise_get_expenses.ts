@@ -113,8 +113,10 @@ export const handler: Handler = async (
         .then((response) => {
           if (response.data.errors.base) {
             console.error(response.data.errors.base);
+            //slack通知を入れる
           } else {
             console.log(response);
+            //slack通知を入れる
           }
         });
       return;
@@ -125,6 +127,7 @@ export const handler: Handler = async (
     expensesList.length === 0
       ? "取得対象の精算経費がありません"
       : `直近${expensesList.length}の経費のうち、${noPaymentExpenses.length}件が未清算、${willSplitExpenses.length}件を割り勘処理しました`;
+  console.log(logMessage)
 
   return {
     statusCode: 200,
