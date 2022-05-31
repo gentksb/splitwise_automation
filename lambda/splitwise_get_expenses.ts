@@ -113,17 +113,17 @@ export const handler: Handler = async (
             },
           }
         )
-        .then((response) => {
-          if (Object.keys(response.data.errors).length === 0) {
+        .then(async (response) => {
+          if (Object.keys(response.data.errors).length !== 0) {
             console.error(response.data.errors);
-            axios.post(slackWebhookUrl, {
+            await axios.post(slackWebhookUrl, {
               text: `割り勘処理でエラー発生\n ID:${response.data.expenses[0].id}\n${response.data.errors.shares}\n${response.data.errors.base}`,
               username: "SplitWise bot",
               icon_emoji: ":splitwise:",
             });
           } else {
             console.log(response.data);
-            axios.post(slackWebhookUrl, {
+            await axios.post(slackWebhookUrl, {
               text: `割り勘補正完了\n
               ID:${response.data.expenses[0].id} を下記の通り分割しました\n
               内容: ${response.data.expenses[0].description}\n
