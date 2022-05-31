@@ -128,8 +128,8 @@ export const handler: Handler = async (
               ID:${response.data.expenses[0].id} を下記の通り分割しました\n
               内容: ${response.data.expenses[0].description}\n
               金額: ${response.data.expenses[0].cost}円\n
-              ${response.data.expenses[0].users[0].first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円\n
-              ${response.data.expenses[0].users[1].first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円`,
+              ${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円\n
+              ${response.data.expenses[0].users[1].user.first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円`,
               username: "SplitWise bot",
               icon_emoji: ":splitwise:",
             });
