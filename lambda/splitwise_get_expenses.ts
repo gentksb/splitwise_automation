@@ -131,12 +131,11 @@ export const handler: Handler = async (
                 {
                   type: "section",
                   text: {
-                    type: "mkdwn",
-                    text: `\n
-              ID:${response.data.expenses[0].id} を下記の通り分割しました\n
-              \`\`\`●内容: ${response.data.expenses[0].description}\n
-              ●金額: ${response.data.expenses[0].cost}円\n
-              ●${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円\n
+                    type: "mrkdwn",
+                    text: `ID:${response.data.expenses[0].id} を下記の通り分割しました
+              \`\`\`●内容: ${response.data.expenses[0].description}
+              ●金額: ${response.data.expenses[0].cost}円
+              ●${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円
               ●${response.data.expenses[0].users[1].user.first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円\`\`\``,
                   },
                 },
