@@ -118,6 +118,14 @@ export const handler: Handler = async (
             });
           } else {
             console.log(response.data);
+            const slackMessage = [
+              `ID:${response.data.expenses[0].id} を下記の通り分割しました`,
+              `\`\`\`●内容: ${response.data.expenses[0].description}`,
+              `●金額: ${response.data.expenses[0].cost}円`,
+              `●${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円`,
+              `●${response.data.expenses[0].users[1].user.first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円\`\`\``,
+            ].join("\n");
+
             await axios.post(SLACK_WEBHOOK_URL, {
               blocks: [
                 {
@@ -132,11 +140,7 @@ export const handler: Handler = async (
                   type: "section",
                   text: {
                     type: "mrkdwn",
-                    text: `ID:${response.data.expenses[0].id} を下記の通り分割しました
-              \`\`\`●内容: ${response.data.expenses[0].description}
-              ●金額: ${response.data.expenses[0].cost}円
-              ●${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円
-              ●${response.data.expenses[0].users[1].user.first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円\`\`\``,
+                    text: slackMessage,
                   },
                 },
               ],
