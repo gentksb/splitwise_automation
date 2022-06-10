@@ -52,7 +52,6 @@ export const handler: Handler = async (
       console.log("更新処理開始 ExpenseID: ", expense.id);
       const payerId = expense.repayments[0].to.toString();
       const { payerOwedShare, nonPayerOwedShare } = splitExpense(expense);
-      console.log(payerId === USER1_ID, typeof payerId, typeof USER1_ID);
 
       const newSplitData = {
         users__0__user_id: payerId,
