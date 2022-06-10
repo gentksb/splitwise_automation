@@ -6,6 +6,8 @@ import {
 } from "aws-lambda";
 import axios, { AxiosRequestConfig } from "axios";
 
+import { isSharedCost } from "./validator/isSharedCost";
+
 const splitData = {
   gen: {
     userId: 33439788,
@@ -46,20 +48,6 @@ export const handler: Handler = async (
     "https://secure.splitwise.com/api/v3.0/get_expenses",
     axios_option
   );
-
-  const isSharedCost = (expense: any) => {
-    const { cost, users } = expense;
-    const splitRate = parseFloat(
-      (parseInt(users[0].owed_share) / parseInt(cost)).toPrecision(2)
-    );
-
-    return (
-      splitRate !== 0 &&
-      splitRate !== 1 &&
-      splitRate !== splitData.gen.rate &&
-      splitRate !== splitData.yu.rate
-    );
-  };
 
   const expensesList: Array<any> = getExpenses.data.expenses;
 

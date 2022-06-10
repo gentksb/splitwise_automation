@@ -35,7 +35,7 @@ export class SplitWiseAutomationStack extends Stack {
       this,
       "splitwise_expense_automation",
       {
-        entry: "lambda/splitwise_get_expenses.ts",
+        entry: "lambda/splitwise_automator.ts",
         // parameter storeの直参照はできないので、パラメータ名のみを渡す。1回デプロイしてSSM編集して2回目デプロイしないと反映されないが仕方ない
         environment: {
           SPLITWISE_API_KEY_PARAMETER_NAME:
