@@ -50,8 +50,9 @@ export const handler: Handler = async (
   await Promise.all(
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
-      const payerId = expense.repayments[0].to;
+      const payerId = expense.repayments[0].to.toString();
       const { payerOwedShare, nonPayerOwedShare } = splitExpense(expense);
+      console.log(payerId === USER1_ID, typeof payerId, typeof USER1_ID);
 
       const newSplitData = {
         users__0__user_id: payerId,
@@ -82,6 +83,7 @@ export const handler: Handler = async (
             await axios.post(SLACK_WEBHOOK_URL, {
               text: `割り勘処理でエラー発生\n ID:${response.data.expenses[0].id}\n${response.data.errors.shares}\n${response.data.errors.base}`,
             });
+            throw new Error("Splitwise APIへのPOST内容に問題があります");
           } else {
             console.log(response.data);
 
