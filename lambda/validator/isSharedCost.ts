@@ -4,7 +4,7 @@ export const isSharedCost = (expense: any) => {
   if (
     USER1_RATE != null &&
     USER2_RATE != null &&
-    parseFloat(USER1_RATE) + parseFloat(USER2_RATE) !== 1
+    parseFloat(USER1_RATE) + parseFloat(USER2_RATE) === 1
   ) {
     const { cost, users } = expense;
     const splitRate = parseFloat(
@@ -20,7 +20,9 @@ export const isSharedCost = (expense: any) => {
     );
   } else {
     console.error(
-      "Split Rateが不正です（値が設定されていないか、合計が1ではありません）"
+      "Split Rateが不正です（値が設定されていないか、合計が1ではありません）",
+      USER1_RATE,
+      USER2_RATE
     );
     throw new Error("split rate error");
   }

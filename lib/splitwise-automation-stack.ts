@@ -11,26 +11,6 @@ export class SplitWiseAutomationStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const splitwise_apikey_parameter = new StringParameter(
-      this,
-      "splitwise_apikey_parameter",
-      {
-        parameterName: "splitwise_apikey",
-        stringValue: "dummy",
-        type: ParameterType.STRING,
-      }
-    );
-
-    const slack_webhook_url_parameter = new StringParameter(
-      this,
-      "slack_webhook_url_parameter",
-      {
-        parameterName: "slack_webhook_url",
-        stringValue: "dummy",
-        type: ParameterType.STRING,
-      }
-    );
-
     const splitwise_expense_automation = new NodejsFunction(
       this,
       "splitwise_expense_automation",
@@ -38,9 +18,13 @@ export class SplitWiseAutomationStack extends Stack {
         entry: "lambda/splitwise_automator.ts",
         // parameter storeの直参照はできないので、パラメータ名のみを渡す。1回デプロイしてSSM編集して2回目デプロイしないと反映されないが仕方ない
         environment: {
-          SPLITWISE_API_KEY_PARAMETER_NAME:
-            splitwise_apikey_parameter.stringValue,
-          SLACK_WEBHOOK_URL: slack_webhook_url_parameter.stringValue,
+          SPLITWISE_API_KEY_PARAMETER_NAME: "splitwise API key",
+          SLACK_WEBHOOK_URL: "Slack webhook url",
+          SPLITWISE_GROUP_ID: "splitwise group id",
+          USER1_ID: "user1 splitwise userid",
+          USER2_ID: "user2 splitwise userid",
+          USER1_RATE: "0.6",
+          USER2_RATE: "0.4",
         },
         runtime: Runtime.NODEJS_16_X,
         logRetention: RetentionDays.ONE_WEEK,
