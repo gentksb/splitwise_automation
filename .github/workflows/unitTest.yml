@@ -29,5 +29,5 @@ jobs:
           SPLITWISE_GROUP_ID: ${{ secrets.SPLITWISE_GROUP_ID }}
           USER1_ID: ${{ secrets.USER1_ID }}
           USER2_ID: ${{ secrets.USER2_ID }}
-          USER1_RATE: ${{ secrets.USER1_ID }}
-          USER2_RATE: ${{ secrets.USER2_ID }}
+          USER1_RATE: ${{ secrets.USER1_RATE }}
+          USER2_RATE: ${{ secrets.USER2_RATE }}
