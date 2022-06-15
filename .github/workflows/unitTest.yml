@@ -1,0 +1,31 @@
+name: unit test
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: Ubuntu-latest
+    steps:
+      - name: checkout-repo
+        uses: actions/checkout@v2
+        with:
+          ref: ${{github.event.pull_request.head.sha}}
+
+      - name: install node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: Run test
+        run: npm test
+        env:
+          PARTNER_TAG: ${{ secrets.PARTNER_TAG }}
+          AMAZON_PAAPI_SECRET: ${{ secrets.AMAZON_PAAPI_SECRET }}
+          AMAZON_PAAPI_KEY: ${{ secrets.AMAZON_PAAPI_KEY }}
