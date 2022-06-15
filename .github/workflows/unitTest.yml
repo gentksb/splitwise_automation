@@ -26,6 +26,8 @@ jobs:
       - name: Run test
         run: npm test
         env:
-          PARTNER_TAG: ${{ secrets.PARTNER_TAG }}
-          AMAZON_PAAPI_SECRET: ${{ secrets.AMAZON_PAAPI_SECRET }}
-          AMAZON_PAAPI_KEY: ${{ secrets.AMAZON_PAAPI_KEY }}
+          SPLITWISE_GROUP_ID: ${{ secrets.SPLITWISE_GROUP_ID }}
+          USER1_ID: ${{ secrets.USER1_ID }}
+          USER2_ID: ${{ secrets.USER2_ID }}
+          USER1_RATE: ${{ secrets.USER1_ID }}
+          USER2_RATE: ${{ secrets.USER2_ID }}
