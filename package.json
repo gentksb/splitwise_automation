@@ -5,7 +5,8 @@
     "step": "bin/splitwise-automation.js"
   },
   "scripts": {
-    "test": "cdk synth --no-staging && sam local invoke splitwise_expense_automation --no-event -t ./cdk.out/SplitWiseAutomationStack.template.json --env-vars .env.lambda.local.json",
+    "test": "jest",
+    "e2e": "cdk synth --no-staging && sam local invoke splitwise_expense_automation --no-event -t ./cdk.out/SplitWiseAutomationStack.template.json --env-vars .env.lambda.json",
     "cdk": "cdk"
   },
   "devDependencies": {
