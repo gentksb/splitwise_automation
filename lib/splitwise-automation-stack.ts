@@ -4,7 +4,6 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { ParameterType, StringParameter } from "aws-cdk-lib/aws-ssm";
 import { Construct } from "constructs";
 
 export class SplitWiseAutomationStack extends Stack {
