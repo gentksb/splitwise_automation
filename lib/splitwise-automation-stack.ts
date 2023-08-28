@@ -1,4 +1,4 @@
-import { Stack, StackProps, Duration, aws_sns, aws_chatbot } from "aws-cdk-lib";
+import { Stack, StackProps, Duration, aws_sns, aws_chatbot, RemovalPolicy } from "aws-cdk-lib";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
@@ -25,10 +25,11 @@ export class SplitWiseAutomationStack extends Stack {
           USER1_RATE: "0.6",
           USER2_RATE: "0.4",
         },
-        runtime: Runtime.NODEJS_16_X,
-        logRetention: RetentionDays.ONE_WEEK,
-      }
-    );
+        runtime: Runtime.NODEJS_18_X,
+        logRetention: RetentionDays.ONE_WEEK
+      },
+    )
+    splitwise_expense_automation.logGroup.applyRemovalPolicy(RemovalPolicy.DESTROY)
 
     const invocationSchedule = new Rule(this, "splitwiseWatchRule", {
       schedule: Schedule.rate(Duration.hours(4)),
