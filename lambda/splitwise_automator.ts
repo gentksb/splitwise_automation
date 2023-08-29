@@ -8,6 +8,10 @@ import axios, { AxiosRequestConfig } from "axios";
 import { splitExpense } from "./logic/splitExpense";
 import { isSharedCost } from "./validator/isSharedCost";
 
+// I tried to generate d.type.ts, w/ official API repo and openapi-typescript, but it didn't work.
+// https://github.com/drwpow/openapi-typescript
+// https://github.com/splitwise/api-docs
+
 export const handler: Handler = async (
   event: APIGatewayEvent,
   context: Context
