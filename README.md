@@ -18,6 +18,7 @@
   - 環境変数 `USER1_RATE`, `USER2_RATE`の合計を1にする必要がある
 - 環境変数名 `SPLITWISE_API_KEY_PARAMETER_NAME` が名称と一致していない
   - パラメータストア使おうとしてやめた開発上の歴史的経緯
+- 金銭計算用ライブラリを使っていないので、浮動小数点誤差が発生する 
  
 ## Environment variables
 
