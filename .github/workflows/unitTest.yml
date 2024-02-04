@@ -10,15 +10,13 @@ jobs:
   test:
     runs-on: Ubuntu-latest
     steps:
-      - name: checkout-repo
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{github.event.pull_request.head.sha}}
 
-      - name: install node.js
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version: 20
 
       - name: install dependencies
         run: npm ci
