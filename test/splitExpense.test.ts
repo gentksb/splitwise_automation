@@ -1,4 +1,4 @@
-import { isSharedCost } from "../lambda/validator/isSharedCost";
+import { isExpenseEligibleForSplitting } from "../lambda/spilitwise-automation/src/validator/isExpenseEligibleForSplitting";
 import { splitExpense } from "../lambda/logic/splitExpense";
 
 const { USER1_RATE, USER2_RATE, USER1_ID, USER2_ID, SPLITWISE_GROUP_ID } =
@@ -19,19 +19,19 @@ test("always ok", () => {
 
 describe("補正対象判定処理テスト", () => {
   test("割り勘補正前のデータは処理対象とする", () => {
-    expect(isSharedCost(willBeSplittedData)).toBeTruthy;
+    expect(isExpenseEligibleForSplitting(willBeSplittedData)).toBeTruthy;
   });
 
   test("100%負担のデータは処理対象としない", () => {
-    expect(isSharedCost(simpleDebtData)).toBeFalsy;
+    expect(isExpenseEligibleForSplitting(simpleDebtData)).toBeFalsy;
   });
 
   test("補正済みデータは処理対象としない", () => {
-    expect(isSharedCost(splittedData)).toBeFalsy;
+    expect(isExpenseEligibleForSplitting(splittedData)).toBeFalsy;
   });
 
   test("指定したグループID以外は処理対象としない", () => {
-    expect(isSharedCost(wrongGroupData)).toBeFalsy;
+    expect(isExpenseEligibleForSplitting(wrongGroupData)).toBeFalsy;
   });
 });
 
