@@ -16,7 +16,7 @@ export class SplitWiseAutomationStack extends Stack {
       "splitwise_expense_automation",
       {
         entry: "lambda/splitwise_automator.ts",
-        // parameter storeの直参照はできないので、パラメータ名のみを渡す。1回デプロイしてSSM編集して2回目デプロイしないと反映されないが仕方ない
+        // secret managerは無料枠がなく、常にコストがかかるので使わない
         environment: {
           SPLITWISE_API_KEY_PARAMETER_NAME: "splitwise API key",
           SLACK_WEBHOOK_URL: "Slack webhook url",
@@ -26,7 +26,7 @@ export class SplitWiseAutomationStack extends Stack {
           USER1_RATE: "0.6",
           USER2_RATE: "0.4",
         },
-        runtime: Runtime.NODEJS_18_X,
+        runtime: Runtime.NODEJS_20_X,
         runtimeManagementMode: RuntimeManagementMode.AUTO,
         logRetention: RetentionDays.ONE_WEEK
       },
