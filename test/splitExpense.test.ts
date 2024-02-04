@@ -58,32 +58,32 @@ describe("割り勘補正処理テスト", () => {
   });
 });
 
-const willBeSplittedData = {
+const willBeSplittedData: components["schemas"]["expense"] = {
   id: 1111111111,
-  group_id: SPLITWISE_GROUP_ID,
+  group_id: Number(SPLITWISE_GROUP_ID),
   cost: "1000.0",
   repayments: [
     {
-      from: USER1_ID,
-      to: USER2_ID,
+      from: Number(USER1_ID),
+      to: Number(USER2_ID),
       amount: "500.0",
     },
   ],
   users: [
     {
       user: {
-        id: USER1_ID,
+        id: Number(USER1_ID),
       },
-      user_id: USER1_ID,
+      user_id: Number(USER1_ID),
       paid_share: "0.0",
       owed_share: "500.0",
       net_balance: "-500.0",
     },
     {
       user: {
-        id: USER2_ID,
+        id: Number(USER2_ID),
       },
-      user_id: USER2_ID,
+      user_id: Number(USER2_ID),
       paid_share: "1000.0",
       owed_share: "500.0",
       net_balance: "500.0",
@@ -92,9 +92,10 @@ const willBeSplittedData = {
 };
 
 const willBeSplittedDataResult = {
-  payerOwedShare: parseFloat(willBeSplittedData.cost) * parseFloat(USER2_RATE),
+  payerOwedShare:
+    parseFloat(willBeSplittedData.cost ?? "0") * parseFloat(USER2_RATE ?? "0"),
   nonPayerOwedShare:
-    parseFloat(willBeSplittedData.cost) * parseFloat(USER1_RATE),
+    parseFloat(willBeSplittedData.cost ?? "0") * parseFloat(USER1_RATE),
 };
 
 const simpleDebtData: components["schemas"]["expense"] = {

@@ -1,6 +1,6 @@
 import { components } from "../../../../@types/splitwise";
 
-export const splitExpense = (expense: components["schemas"]['expense']) => {
+export const splitExpense = (expense: components["schemas"]["expense"]) => {
   const { USER1_RATE, USER2_RATE, USER1_ID } = process.env;
 
   // ユーザー情報が環境変数に入力されているかどうかのチェック

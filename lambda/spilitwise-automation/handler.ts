@@ -41,7 +41,8 @@ export const handler: Handler = async (
     axios_option
   );
 
-  const expensesList: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"]["expenses"] = getExpenses.data.expenses;
+  const expensesList: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"]["expenses"] =
+    getExpenses.data.expenses;
 
   // リストが空か0の場合は処理を終了
   if (expensesList === undefined || expensesList.length === 0) {
@@ -53,11 +54,7 @@ export const handler: Handler = async (
     };
   }
 
-  const noPaymentExpenses = expensesList.filter(
-    (expense) => expense.payment === false
-  );
-
-  const willSplitExpenses = noPaymentExpenses.filter((expense) =>
+  const willSplitExpenses = expensesList.filter((expense) =>
     isExpenseEligibleForSplitting(expense)
   );
 
@@ -137,7 +134,7 @@ export const handler: Handler = async (
   const logMessage =
     expensesList.length === 0
       ? "取得対象の精算経費がありません"
-      : `直近${expensesList.length}の経費のうち、${noPaymentExpenses.length}件が未清算、${willSplitExpenses.length}件を割り勘処理しました`;
+      : `直近${expensesList.length}の経費のうち、${willSplitExpenses.length}件を割り勘処理しました`;
   console.log(logMessage);
 
   return {

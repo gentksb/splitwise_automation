@@ -1,6 +1,8 @@
 import { components } from "../../../../@types/splitwise";
 
-export const isExpenseEligibleForSplitting = (expense: components["schemas"]['expense']) => {
+export const isExpenseEligibleForSplitting = (
+  expense: components["schemas"]["expense"]
+) => {
   const { USER1_RATE, USER2_RATE } = process.env;
 
   // env check
@@ -18,7 +20,12 @@ export const isExpenseEligibleForSplitting = (expense: components["schemas"]['ex
   }
 
   // 必要な情報が含まれていない場合、エラーをスローせずに処理を終了する
-  if ( expense.group_id === undefined || expense.users === undefined || expense.users.length < 2 || expense.cost === undefined) {
+  if (
+    expense.group_id === undefined ||
+    expense.users === undefined ||
+    expense.users.length < 2 ||
+    expense.cost === undefined
+  ) {
     console.error("割り勘費用の情報に不備があります", expense);
     return false;
   }
