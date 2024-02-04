@@ -1,5 +1,6 @@
 import { isExpenseEligibleForSplitting } from "../lambda/spilitwise-automation/src/validator/isExpenseEligibleForSplitting";
 import { splitExpense } from "../lambda/spilitwise-automation/src/logic/splitExpense";
+import { components } from "../@types/splitwise";
 
 const { USER1_RATE, USER2_RATE, USER1_ID, USER2_ID, SPLITWISE_GROUP_ID } =
   process.env;
@@ -96,32 +97,32 @@ const willBeSplittedDataResult = {
     parseFloat(willBeSplittedData.cost) * parseFloat(USER1_RATE),
 };
 
-const simpleDebtData = {
+const simpleDebtData: components["schemas"]["expense"] = {
   id: 1111111111,
-  group_id: SPLITWISE_GROUP_ID,
+  group_id: Number(SPLITWISE_GROUP_ID),
   cost: "1000.0",
   repayments: [
     {
-      from: USER1_ID,
-      to: USER2_ID,
+      from: Number(USER1_ID),
+      to: Number(USER2_ID),
       amount: "1000.0",
     },
   ],
   users: [
     {
       user: {
-        id: USER1_ID,
+        id: Number(USER1_ID),
       },
-      user_id: USER1_ID,
+      user_id: Number(USER1_ID),
       paid_share: "0.0",
       owed_share: "0.0",
       net_balance: "-1000.0",
     },
     {
       user: {
-        id: USER2_ID,
+        id: Number(USER2_ID),
       },
-      user_id: USER2_ID,
+      user_id: Number(USER2_ID),
       paid_share: "1000.0",
       owed_share: "0.0",
       net_balance: "0.0",
@@ -129,32 +130,32 @@ const simpleDebtData = {
   ],
 };
 
-const splittedData = {
+const splittedData: components["schemas"]["expense"] = {
   id: 1111111111,
-  group_id: SPLITWISE_GROUP_ID,
+  group_id: Number(SPLITWISE_GROUP_ID),
   cost: "1000.0",
   repayments: [
     {
-      from: USER1_ID,
-      to: USER2_ID,
+      from: Number(USER1_ID),
+      to: Number(USER2_ID),
       amount: "600.0",
     },
   ],
   users: [
     {
       user: {
-        id: USER1_ID,
+        id: Number(USER1_ID),
       },
-      user_id: USER1_ID,
+      user_id: Number(USER1_ID),
       paid_share: "0.0",
       owed_share: "6000.0",
       net_balance: "-600.0",
     },
     {
       user: {
-        id: USER2_ID,
+        id: Number(USER2_ID),
       },
-      user_id: USER2_ID,
+      user_id: Number(USER2_ID),
       paid_share: "1000.0",
       owed_share: "400.0",
       net_balance: "600.0",
@@ -162,32 +163,32 @@ const splittedData = {
   ],
 };
 
-const wrongGroupData = {
+const wrongGroupData: components["schemas"]["expense"] = {
   id: 1111111111,
-  group_id: "88888888",
+  group_id: 88888888,
   cost: "1000.0",
   repayments: [
     {
-      from: USER1_ID,
-      to: USER2_ID,
+      from: Number(USER1_ID),
+      to: Number(USER2_ID),
       amount: "600.0",
     },
   ],
   users: [
     {
       user: {
-        id: USER1_ID,
+        id: Number(USER1_ID),
       },
-      user_id: USER1_ID,
+      user_id: Number(USER2_ID),
       paid_share: "0.0",
       owed_share: "6000.0",
       net_balance: "-600.0",
     },
     {
       user: {
-        id: USER2_ID,
+        id: Number(USER2_ID),
       },
-      user_id: USER2_ID,
+      user_id: Number(USER1_ID),
       paid_share: "1000.0",
       owed_share: "400.0",
       net_balance: "600.0",
