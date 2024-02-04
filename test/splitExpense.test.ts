@@ -41,14 +41,22 @@ describe("割り勘補正処理テスト", () => {
     expect(splitExpense(willBeSplittedData)).toEqual(willBeSplittedDataResult);
   });
   test("割り切れない場合の端数を処理できる", () => {
-    const oddData = { ...willBeSplittedData };
-    oddData.cost = "999";
-    oddData.repayments[0].amount = "499";
-    oddData.users[0].owed_share = "499";
-    oddData.users[0].net_balance = "-499";
-    oddData.users[1].paid_share = "999";
-    oddData.users[1].owed_share = "500";
-    oddData.users[1].net_balance = "499";
+    const oddData = {
+      ...willBeSplittedData,
+      cost: "999",
+      repayments: [{ amount: "499" }],
+      users: [
+        {
+          owed_share: "499",
+          net_balance: "-499",
+        },
+        {
+          paid_share: "999",
+          owed_share: "500",
+          net_balance: "499",
+        },
+      ],
+    };
     const oddDataSplitResult = {
       payerOwedShare: 400,
       nonPayerOwedShare: 599,
