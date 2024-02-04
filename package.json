@@ -8,7 +8,8 @@
     "test": "jest",
     "pree2e": "printf '{\"Parameters\":{\"SPLITWISE_API_KEY_PARAMETER_NAME\":\"%s\",\"SLACK_WEBHOOK_URL\":\"%s\",\"SPLITWISE_GROUP_ID\":\"%s\",\"USER1_ID\":\"%s\",\"USER2_ID\":\"%s\",\"USER1_RATE\":\"%s\",\"USER2_RATE\":\"%s\"}}' $SPLITWISE_API_KEY_PARAMETER_NAME $SLACK_WEBHOOK_URL $SPLITWISE_GROUP_ID $USER1_ID $USER2_ID $USER1_RATE $USER2_RATE > .env.json ",
     "e2e": "cdk synth --no-staging && sam local invoke splitwise_expense_automation --no-event -t ./cdk.out/SplitWiseAutomationStack.template.json --env-vars .env.json",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "typegen": "openapi-typescript --input splitwise/swagger.json --output @types/splitwise.d.ts"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.133",
