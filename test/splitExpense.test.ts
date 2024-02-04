@@ -1,5 +1,5 @@
 import { isExpenseEligibleForSplitting } from "../lambda/spilitwise-automation/src/validator/isExpenseEligibleForSplitting";
-import { splitExpense } from "../lambda/logic/splitExpense";
+import { splitExpense } from "../lambda/spilitwise-automation/src/logic/splitExpense";
 
 const { USER1_RATE, USER2_RATE, USER1_ID, USER2_ID, SPLITWISE_GROUP_ID } =
   process.env;
@@ -164,7 +164,7 @@ const splittedData = {
 
 const wrongGroupData = {
   id: 1111111111,
-  group_id: 88888888,
+  group_id: "88888888",
   cost: "1000.0",
   repayments: [
     {
