@@ -4,7 +4,6 @@ import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Runtime, RuntimeManagementMode } from "aws-cdk-lib/aws-lambda";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { RetentionDays } from "aws-cdk-lib/aws-logs";
-import { Lambda } from "aws-cdk-lib/aws-ses-actions";
 import { Construct } from "constructs";
 
 export class SplitWiseAutomationStack extends Stack {
@@ -15,7 +14,7 @@ export class SplitWiseAutomationStack extends Stack {
       this,
       "splitwise_expense_automation",
       {
-        entry: "lambda/splitwise_automator.ts",
+        entry: "lambda/splitwise-automation/handler.ts",
         // secret managerは無料枠がなく、常にコストがかかるので使わない
         environment: {
           SPLITWISE_API_KEY_PARAMETER_NAME: "splitwise API key",

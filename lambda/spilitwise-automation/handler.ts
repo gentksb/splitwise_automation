@@ -5,8 +5,9 @@ import {
   Handler,
 } from "aws-lambda";
 import axios, { AxiosRequestConfig } from "axios";
-import { splitExpense } from "./logic/splitExpense";
-import { isSharedCost } from "./validator/isSharedCost";
+import { splitExpense } from "./src/logic/splitExpense";
+import { isExpenseEligibleForSplitting } from "./src/validator/isExpenseEligibleForSplitting";
+import { paths } from "../../@types/splitwise";
 
 // I tried to generate d.type.ts, w/ official API repo and openapi-typescript, but it didn't work.
 // https://github.com/drwpow/openapi-typescript
@@ -40,21 +41,28 @@ export const handler: Handler = async (
     axios_option
   );
 
-  const expensesList: Array<any> = getExpenses.data.expenses;
+  const expensesList: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"]["expenses"] =
+    getExpenses.data.expenses;
 
-  const noPaymentExpenses = expensesList.filter(
-    (expense) => expense.payment === false
-  );
+  // リストが空か0の場合は処理を終了
+  if (expensesList === undefined || expensesList.length === 0) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: "取得対象の精算経費がありません",
+      }),
+    };
+  }
 
-  const willSplitExpenses = noPaymentExpenses.filter((expense) =>
-    isSharedCost(expense)
+  const willSplitExpenses = expensesList.filter((expense) =>
+    isExpenseEligibleForSplitting(expense)
   );
 
   // 更新処理
   await Promise.all(
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
-      const payerId = expense.repayments[0].to.toString();
+      const payerId = expense.repayments?.[0]?.to?.toString();
       const { payerOwedShare, nonPayerOwedShare } = splitExpense(expense);
 
       const newSplitData = {
@@ -126,7 +134,7 @@ export const handler: Handler = async (
   const logMessage =
     expensesList.length === 0
       ? "取得対象の精算経費がありません"
-      : `直近${expensesList.length}の経費のうち、${noPaymentExpenses.length}件が未清算、${willSplitExpenses.length}件を割り勘処理しました`;
+      : `直近${expensesList.length}の経費のうち、${willSplitExpenses.length}件を割り勘処理しました`;
   console.log(logMessage);
 
   return {
