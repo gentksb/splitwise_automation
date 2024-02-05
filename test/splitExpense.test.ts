@@ -18,31 +18,89 @@ test("always ok", () => {
   expect(true).toBeTruthy();
 });
 
+// // 異常系テスト
+// describe("異常系テスト", () => {
+//   test("グループIDが含まれていない場合、処理せずエラーログを出力して正常終了する", () => {
+//     const missingGroupIdData = {
+//       ...willBeSplittedData,
+//       group_id: null,
+//     };
+//     // ログ出力をJestで追跡する関数
+//     const logSpy = jest.spyOn(global.console, "error");
+
+//     // console.errorの出力をAssertする
+//     expect(isExpenseEligibleForSplitting(missingGroupIdData)).toBe(false);
+//     expect(logSpy).toHaveBeenCalled();
+
+//     logSpy.mockRestore();
+//   });
+// });
+
 describe("補正対象判定処理テスト", () => {
-  test("割り勘補正前のデータは処理対象とする", () => {
-    expect(isExpenseEligibleForSplitting(willBeSplittedData)).toBeTruthy;
+  test("典型例: 支払い前でデフォルト負担率（50:50）のデータを処理する", () => {
+    expect(isExpenseEligibleForSplitting(basicExpense)).toBeTruthy();
   });
 
   test("100%負担のデータは処理対象としない", () => {
-    expect(isExpenseEligibleForSplitting(simpleDebtData)).toBeFalsy;
+    const simpleDebtExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      repayments: [
+        {
+          amount: "1000.0",
+        },
+      ],
+      users: [
+        {
+          owed_share: "0.0",
+          net_balance: "-1000.0",
+        },
+        {
+          owed_share: "0.0",
+          net_balance: "0.0",
+        },
+      ],
+    };
+    expect(isExpenseEligibleForSplitting(simpleDebtExpense)).toBeFalsy();
   });
 
   test("補正済みデータは処理対象としない", () => {
-    expect(isExpenseEligibleForSplitting(splittedData)).toBeFalsy;
+    const reSplittedExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      repayments: [
+        {
+          amount: "600.0",
+        },
+      ],
+      users: [
+        {
+          owed_share: "600.0",
+          net_balance: "-600.0",
+        },
+        {
+          owed_share: "400.0",
+          net_balance: "600.0",
+        },
+      ],
+    };
+    expect(isExpenseEligibleForSplitting(reSplittedExpense)).toBeFalsy();
   });
 
   test("指定したグループID以外は処理対象としない", () => {
-    expect(isExpenseEligibleForSplitting(wrongGroupData)).toBeFalsy;
+    const nonTargetGroupExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      group_id: 88888888,
+    };
+    expect(isExpenseEligibleForSplitting(nonTargetGroupExpense)).toBeFalsy();
   });
 });
 
 describe("割り勘補正処理テスト", () => {
   test("割り切ることのできる金額を処理できる", () => {
-    expect(splitExpense(willBeSplittedData)).toEqual(willBeSplittedDataResult);
+    expect(splitExpense(basicExpense)).toEqual(reSplittedExpenseBalance);
   });
   test("割り切れない場合の端数を処理できる", () => {
-    const oddData = {
-      ...willBeSplittedData,
+    const oddBlanceExpense = {
+      ...basicExpense,
       cost: "999",
       repayments: [{ amount: "499" }],
       users: [
@@ -57,16 +115,16 @@ describe("割り勘補正処理テスト", () => {
         },
       ],
     };
-    const oddDataSplitResult = {
+    const oddExpenseReSplittedBalance = {
       payerOwedShare: 400,
       nonPayerOwedShare: 599,
     };
 
-    expect(splitExpense(oddData)).toEqual(oddDataSplitResult);
+    expect(splitExpense(oddBlanceExpense)).toEqual(oddExpenseReSplittedBalance);
   });
 });
 
-const willBeSplittedData: components["schemas"]["expense"] = {
+const basicExpense: components["schemas"]["expense"] = {
   id: 1111111111,
   group_id: Number(SPLITWISE_GROUP_ID),
   cost: "1000.0",
@@ -97,110 +155,12 @@ const willBeSplittedData: components["schemas"]["expense"] = {
       net_balance: "500.0",
     },
   ],
+  payment: false,
 };
 
-const willBeSplittedDataResult = {
+const reSplittedExpenseBalance = {
   payerOwedShare:
-    parseFloat(willBeSplittedData.cost ?? "0") * parseFloat(USER2_RATE ?? "0"),
+    parseFloat(basicExpense.cost ?? "0") * parseFloat(USER2_RATE ?? "0"),
   nonPayerOwedShare:
-    parseFloat(willBeSplittedData.cost ?? "0") * parseFloat(USER1_RATE),
-};
-
-const simpleDebtData: components["schemas"]["expense"] = {
-  id: 1111111111,
-  group_id: Number(SPLITWISE_GROUP_ID),
-  cost: "1000.0",
-  repayments: [
-    {
-      from: Number(USER1_ID),
-      to: Number(USER2_ID),
-      amount: "1000.0",
-    },
-  ],
-  users: [
-    {
-      user: {
-        id: Number(USER1_ID),
-      },
-      user_id: Number(USER1_ID),
-      paid_share: "0.0",
-      owed_share: "0.0",
-      net_balance: "-1000.0",
-    },
-    {
-      user: {
-        id: Number(USER2_ID),
-      },
-      user_id: Number(USER2_ID),
-      paid_share: "1000.0",
-      owed_share: "0.0",
-      net_balance: "0.0",
-    },
-  ],
-};
-
-const splittedData: components["schemas"]["expense"] = {
-  id: 1111111111,
-  group_id: Number(SPLITWISE_GROUP_ID),
-  cost: "1000.0",
-  repayments: [
-    {
-      from: Number(USER1_ID),
-      to: Number(USER2_ID),
-      amount: "600.0",
-    },
-  ],
-  users: [
-    {
-      user: {
-        id: Number(USER1_ID),
-      },
-      user_id: Number(USER1_ID),
-      paid_share: "0.0",
-      owed_share: "6000.0",
-      net_balance: "-600.0",
-    },
-    {
-      user: {
-        id: Number(USER2_ID),
-      },
-      user_id: Number(USER2_ID),
-      paid_share: "1000.0",
-      owed_share: "400.0",
-      net_balance: "600.0",
-    },
-  ],
-};
-
-const wrongGroupData: components["schemas"]["expense"] = {
-  id: 1111111111,
-  group_id: 88888888,
-  cost: "1000.0",
-  repayments: [
-    {
-      from: Number(USER1_ID),
-      to: Number(USER2_ID),
-      amount: "600.0",
-    },
-  ],
-  users: [
-    {
-      user: {
-        id: Number(USER1_ID),
-      },
-      user_id: Number(USER2_ID),
-      paid_share: "0.0",
-      owed_share: "6000.0",
-      net_balance: "-600.0",
-    },
-    {
-      user: {
-        id: Number(USER2_ID),
-      },
-      user_id: Number(USER1_ID),
-      paid_share: "1000.0",
-      owed_share: "400.0",
-      net_balance: "600.0",
-    },
-  ],
+    parseFloat(basicExpense.cost ?? "0") * parseFloat(USER1_RATE),
 };
