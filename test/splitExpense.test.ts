@@ -18,23 +18,23 @@ test("always ok", () => {
   expect(true).toBeTruthy();
 });
 
-// // 異常系テスト
-// describe("異常系テスト", () => {
-//   test("グループIDが含まれていない場合、処理せずエラーログを出力して正常終了する", () => {
-//     const missingGroupIdData = {
-//       ...willBeSplittedData,
-//       group_id: null,
-//     };
-//     // ログ出力をJestで追跡する関数
-//     const logSpy = jest.spyOn(global.console, "error");
+// 異常系テスト
+describe("異常系テスト", () => {
+  test("グループIDが含まれていない場合、処理せずエラーログを出力して正常終了する", () => {
+    const missingGroupIdData = {
+      ...basicExpense,
+      group_id: null,
+    };
+    // ログ出力をJestで追跡する関数
+    const logSpy = jest.spyOn(global.console, "error");
 
-//     // console.errorの出力をAssertする
-//     expect(isExpenseEligibleForSplitting(missingGroupIdData)).toBe(false);
-//     expect(logSpy).toHaveBeenCalled();
+    // console.errorの出力をAssertする
+    expect(isExpenseEligibleForSplitting(missingGroupIdData)).toBe(false);
+    expect(logSpy).toHaveBeenCalled();
 
-//     logSpy.mockRestore();
-//   });
-// });
+    logSpy.mockRestore();
+  });
+});
 
 describe("補正対象判定処理テスト", () => {
   test("典型例: 支払い前でデフォルト負担率（50:50）のデータを処理する", () => {
