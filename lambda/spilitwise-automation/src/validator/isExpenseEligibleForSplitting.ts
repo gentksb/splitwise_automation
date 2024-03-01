@@ -1,11 +1,21 @@
 import { components } from "../../../../@types/splitwise";
 
-export const isExpenseEligibleForSplitting = (
-  expense: components["schemas"]["expense"]
-) => {
-  const { USER1_RATE, USER2_RATE } = process.env;
+type Expense = components["schemas"]["expense"];
 
-  // env check
+interface Props {
+  expense: Expense;
+  USER1_RATE: string;
+  USER2_RATE: string;
+  SPLITWISE_GROUP_ID: string;
+}
+
+export const isExpenseEligibleForSplitting = ({
+  expense,
+  USER1_RATE,
+  USER2_RATE,
+  SPLITWISE_GROUP_ID,
+}: Props) => {
+  // validation of props
   if (
     USER1_RATE == null ||
     USER2_RATE == null ||
@@ -38,7 +48,7 @@ export const isExpenseEligibleForSplitting = (
   // グループIDが一致し、割り勘でない、かつ、割り勘率が0,1,USER1_RATE,USER2_RATE以外の場合は処理対象とする
   return (
     expense.payment === false &&
-    expense.group_id?.toString() === process.env.SPLITWISE_GROUP_ID &&
+    expense.group_id?.toString() === SPLITWISE_GROUP_ID &&
     splitRate !== 0 &&
     splitRate !== 1 &&
     splitRate !== parseFloat(USER1_RATE) &&
