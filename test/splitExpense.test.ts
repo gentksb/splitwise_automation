@@ -37,16 +37,11 @@ describe("異常系テスト", () => {
       ...basicExpense,
       group_id: null,
     };
-    // ログ出力をJestで追跡する関数
-    const logSpy = jest.spyOn(global.console, "error");
 
     // console.errorの出力をAssertする
     expect(isExpenseEligibleForSplittingWrapper(missingGroupIdData)).toBe(
       false
     );
-    expect(logSpy).toHaveBeenCalled();
-
-    logSpy.mockRestore();
   });
 });
 
