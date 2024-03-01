@@ -1,7 +1,7 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { splitExpense } from "./src/logic/splitExpense";
 import { isExpenseEligibleForSplitting } from "./src/validator/isExpenseEligibleForSplitting";
-import { paths } from "../../@types/splitwise";
+import { components, paths } from "../../@types/splitwise";
 
 interface Props {
   SPLITWISE_API_KEY_PARAMETER_NAME: string;
@@ -12,6 +12,8 @@ interface Props {
   USER2_RATE: string;
   SPLITWISE_GROUP_ID: string;
 }
+
+type Expense = components["schemas"]["expense"];
 
 export const splitRecent20Expenses = async (props: Props) => {
   const {
@@ -37,16 +39,17 @@ export const splitRecent20Expenses = async (props: Props) => {
   );
 
   // 本処理
-  const getExpenses = await axios.get(
+  const getExpenses: AxiosResponse<
+    paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"]
+  > = await axios.get(
     "https://secure.splitwise.com/api/v3.0/get_expenses",
     axios_option
   );
 
-  const expensesList: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"]["expenses"] =
-    getExpenses.data.expenses;
+  const expensesList: Expense[] = getExpenses.data.expenses || [];
 
   // リストが空か0の場合は処理を終了
-  if (expensesList === undefined || expensesList.length === 0) {
+  if (expensesList.length === 0) {
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -64,34 +67,36 @@ export const splitRecent20Expenses = async (props: Props) => {
     })
   );
 
+  const makeNewSplitData = (expense: Expense) => {
+    const payerId = expense.repayments?.[0]?.to?.toString();
+    const { payerOwedShare, nonPayerOwedShare } = splitExpense({
+      expense,
+      USER1_RATE,
+      USER1_ID,
+      USER2_RATE,
+    });
+
+    return {
+      group_id: SPLITWISE_GROUP_ID,
+      users__0__user_id: payerId,
+      users__0__paid_share: expense.cost,
+      users__0__owed_share: payerOwedShare,
+      users__1__user_id: payerId === USER1_ID ? USER2_ID : USER1_ID,
+      users__1__paid_share: "0",
+      users__1__owed_share: nonPayerOwedShare.toString(),
+    };
+  };
+
   // 更新処理
   await Promise.all(
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
-      const payerId = expense.repayments?.[0]?.to?.toString();
-      const { payerOwedShare, nonPayerOwedShare } = splitExpense({
-        expense,
-        USER1_RATE,
-        USER1_ID,
-        USER2_RATE,
-      });
-
-      const newSplitData = {
-        users__0__user_id: payerId,
-        users__0__paid_share: expense.cost,
-        users__0__owed_share: payerOwedShare,
-        users__1__user_id: payerId === USER1_ID ? USER2_ID : USER1_ID,
-        users__1__paid_share: "0",
-        users__1__owed_share: nonPayerOwedShare.toString(),
-      };
-
+      const newSplitData = makeNewSplitData(expense);
+      // ここまでリファクタ済み
       await axios
         .post(
           `https://secure.splitwise.com/api/v3.0/update_expense/${expense.id}`,
-          {
-            group_id: SPLITWISE_GROUP_ID,
-            ...newSplitData,
-          },
+          newSplitData,
           {
             headers: {
               "Content-Type": "application/json",
