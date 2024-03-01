@@ -14,6 +14,18 @@ if (
 ) {
   throw new Error("環境変数が不足しています");
 }
+
+// 環境変数を設定済みの関数
+const isExpenseEligibleForSplittingWrapper = (
+  expense: components["schemas"]["expense"]
+) =>
+  isExpenseEligibleForSplitting({
+    expense,
+    USER1_RATE,
+    USER2_RATE,
+    SPLITWISE_GROUP_ID,
+  });
+
 test("always ok", () => {
   expect(true).toBeTruthy();
 });
@@ -29,7 +41,9 @@ describe("異常系テスト", () => {
     const logSpy = jest.spyOn(global.console, "error");
 
     // console.errorの出力をAssertする
-    expect(isExpenseEligibleForSplitting(missingGroupIdData)).toBe(false);
+    expect(isExpenseEligibleForSplittingWrapper(missingGroupIdData)).toBe(
+      false
+    );
     expect(logSpy).toHaveBeenCalled();
 
     logSpy.mockRestore();
@@ -38,7 +52,7 @@ describe("異常系テスト", () => {
 
 describe("補正対象判定処理テスト", () => {
   test("典型例: 支払い前でデフォルト負担率（50:50）のデータを処理する", () => {
-    expect(isExpenseEligibleForSplitting(basicExpense)).toBeTruthy();
+    expect(isExpenseEligibleForSplittingWrapper(basicExpense)).toBeTruthy();
   });
 
   test("100%負担のデータは処理対象としない", () => {
@@ -60,7 +74,7 @@ describe("補正対象判定処理テスト", () => {
         },
       ],
     };
-    expect(isExpenseEligibleForSplitting(simpleDebtExpense)).toBeFalsy();
+    expect(isExpenseEligibleForSplittingWrapper(simpleDebtExpense)).toBeFalsy();
   });
 
   test("補正済みデータは処理対象としない", () => {
@@ -82,7 +96,7 @@ describe("補正対象判定処理テスト", () => {
         },
       ],
     };
-    expect(isExpenseEligibleForSplitting(reSplittedExpense)).toBeFalsy();
+    expect(isExpenseEligibleForSplittingWrapper(reSplittedExpense)).toBeFalsy();
   });
 
   test("指定したグループID以外は処理対象としない", () => {
@@ -90,7 +104,9 @@ describe("補正対象判定処理テスト", () => {
       ...basicExpense,
       group_id: 88888888,
     };
-    expect(isExpenseEligibleForSplitting(nonTargetGroupExpense)).toBeFalsy();
+    expect(
+      isExpenseEligibleForSplittingWrapper(nonTargetGroupExpense)
+    ).toBeFalsy();
   });
 });
 
