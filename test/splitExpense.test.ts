@@ -26,6 +26,14 @@ const isExpenseEligibleForSplittingWrapper = (
     SPLITWISE_GROUP_ID,
   });
 
+const splitExpenseWrapper = (expense: components["schemas"]["expense"]) =>
+  splitExpense({
+    expense,
+    USER1_RATE,
+    USER1_ID,
+    USER2_RATE,
+  });
+
 test("always ok", () => {
   expect(true).toBeTruthy();
 });
@@ -107,7 +115,7 @@ describe("補正対象判定処理テスト", () => {
 
 describe("割り勘補正処理テスト", () => {
   test("割り切ることのできる金額を処理できる", () => {
-    expect(splitExpense(basicExpense)).toEqual(reSplittedExpenseBalance);
+    expect(splitExpenseWrapper(basicExpense)).toEqual(reSplittedExpenseBalance);
   });
   test("割り切れない場合の端数を処理できる", () => {
     const oddBlanceExpense = {
@@ -131,7 +139,9 @@ describe("割り勘補正処理テスト", () => {
       nonPayerOwedShare: 599,
     };
 
-    expect(splitExpense(oddBlanceExpense)).toEqual(oddExpenseReSplittedBalance);
+    expect(splitExpenseWrapper(oddBlanceExpense)).toEqual(
+      oddExpenseReSplittedBalance
+    );
   });
 });
 

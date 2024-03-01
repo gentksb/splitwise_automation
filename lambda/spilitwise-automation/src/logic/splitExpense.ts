@@ -1,8 +1,20 @@
 import { components } from "../../../../@types/splitwise";
 
-export const splitExpense = (expense: components["schemas"]["expense"]) => {
-  const { USER1_RATE, USER2_RATE, USER1_ID } = process.env;
+type Expense = components["schemas"]["expense"];
 
+interface Props {
+  expense: Expense;
+  USER1_RATE: string;
+  USER1_ID: string;
+  USER2_RATE: string;
+}
+
+export const splitExpense = ({
+  expense,
+  USER1_RATE,
+  USER1_ID,
+  USER2_RATE,
+}: Props) => {
   // ユーザー情報が環境変数に入力されているかどうかのチェック
   if (USER1_RATE != null && USER2_RATE != null && USER1_ID !== null) {
     const numCost = parseInt(expense.cost ?? "0");

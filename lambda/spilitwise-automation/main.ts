@@ -69,7 +69,12 @@ export const splitRecent20Expenses = async (props: Props) => {
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
       const payerId = expense.repayments?.[0]?.to?.toString();
-      const { payerOwedShare, nonPayerOwedShare } = splitExpense(expense);
+      const { payerOwedShare, nonPayerOwedShare } = splitExpense({
+        expense,
+        USER1_RATE,
+        USER1_ID,
+        USER2_RATE,
+      });
 
       const newSplitData = {
         users__0__user_id: payerId,
