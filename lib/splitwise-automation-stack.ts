@@ -1,4 +1,11 @@
-import { Stack, StackProps, Duration, aws_sns, aws_chatbot, RemovalPolicy } from "aws-cdk-lib";
+import {
+  Stack,
+  StackProps,
+  Duration,
+  aws_sns,
+  aws_chatbot,
+  RemovalPolicy,
+} from "aws-cdk-lib";
 import { Rule, Schedule } from "aws-cdk-lib/aws-events";
 import { LambdaFunction } from "aws-cdk-lib/aws-events-targets";
 import { Runtime, RuntimeManagementMode } from "aws-cdk-lib/aws-lambda";
@@ -27,9 +34,10 @@ export class SplitWiseAutomationStack extends Stack {
         },
         runtime: Runtime.NODEJS_20_X,
         runtimeManagementMode: RuntimeManagementMode.AUTO,
-        logRetention: RetentionDays.ONE_WEEK
-      },
-    )
+        logRetention: RetentionDays.ONE_WEEK,
+        timeout: Duration.seconds(30),
+      }
+    );
 
     const invocationSchedule = new Rule(this, "splitwiseWatchRule", {
       schedule: Schedule.rate(Duration.hours(4)),
