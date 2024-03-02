@@ -92,7 +92,7 @@ export const splitRecent20Expenses = async (props: Props) => {
     willSplitExpenses.map(async (expense) => {
       console.log("更新処理開始 ExpenseID: ", expense.id);
       const newSplitData = makeNewSplitData(expense);
-      // ここまでリファクタ済み
+
       await axios
         .post(
           `https://secure.splitwise.com/api/v3.0/update_expense/${expense.id}`,
@@ -104,45 +104,58 @@ export const splitRecent20Expenses = async (props: Props) => {
             },
           }
         )
-        .then(async (response) => {
-          if (Object.keys(response.data.errors).length !== 0) {
-            console.error(response.data.errors);
-            await axios.post(SLACK_WEBHOOK_URL, {
-              text: `割り勘処理でエラー発生\n ID:${response.data.expenses[0].id}\n${response.data.errors.shares}\n${response.data.errors.base}`,
-            });
-            throw new Error("Splitwise APIへのPOST内容に問題があります");
-          } else {
-            console.log(response.data);
+        .then(
+          async (
+            response: AxiosResponse<
+              paths["/update_expense/{id}"]["post"]["responses"]["200"]["content"]["application/json"]
+            >
+          ) => {
+            if (response.data.errors?.length !== 0) {
+              console.error(response.data.errors);
+              await axios.post(SLACK_WEBHOOK_URL, {
+                text: `割り勘処理でエラー発生\n ID:${response.data.expenses?.[0].id}\n${response.data.errors?.toString()}`,
+              });
+              throw new Error("Splitwise APIへのPOST内容に問題があります");
+            } else {
+              console.log("update_expense成功", response.data);
 
-            const slackMessage = [
-              `ID:${response.data.expenses[0].id} を下記の通り分割しました`,
-              `\`\`\`●内容: ${response.data.expenses[0].description}`,
-              `●金額: ${response.data.expenses[0].cost}円`,
-              `●${response.data.expenses[0].users[0].user.first_name}の負担: ${response.data.expenses[0].users[0].owed_share}円`,
-              `●${response.data.expenses[0].users[1].user.first_name}の負担: ${response.data.expenses[0].users[1].owed_share}円\`\`\``,
-            ].join("\n");
+              const slackMessage = [
+                `ID:${response.data.expenses?.[0].id} を下記の通り分割しました`,
+                `\`\`\`●内容: ${response.data.expenses?.[0].description}`,
+                `●金額: ${response.data.expenses?.[0].cost}円`,
+                `●${response.data.expenses?.[0].users?.[0].user?.first_name}の負担: ${response.data.expenses?.[0].users?.[0].owed_share}円`,
+                `●${response.data.expenses?.[0].users?.[1].user?.first_name}の負担: ${response.data.expenses?.[0].users?.[1].owed_share}円\`\`\``,
+              ].join("\n");
 
-            await axios.post(SLACK_WEBHOOK_URL, {
-              blocks: [
-                {
-                  type: "header",
-                  text: {
-                    type: "plain_text",
-                    text: "割り勘補正を実行しました:ballot_box_with_check:",
-                    emoji: true,
-                  },
-                },
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: slackMessage,
-                  },
-                },
-              ],
-            });
+              await axios
+                .post(SLACK_WEBHOOK_URL, {
+                  blocks: [
+                    {
+                      type: "header",
+                      text: {
+                        type: "plain_text",
+                        text: "割り勘補正を実行しました:ballot_box_with_check:",
+                        emoji: true,
+                      },
+                    },
+                    {
+                      type: "section",
+                      text: {
+                        type: "mrkdwn",
+                        text: slackMessage,
+                      },
+                    },
+                  ],
+                })
+                .then((res) =>
+                  console.log(
+                    `Slack post response: ${res.status}`,
+                    res.data.toString()
+                  )
+                );
+            }
           }
-        });
+        );
       return;
     })
   );
