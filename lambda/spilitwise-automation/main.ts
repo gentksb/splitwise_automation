@@ -112,8 +112,13 @@ export const splitRecent20Expenses = async (props: Props) => {
               paths["/update_expense/{id}"]["post"]["responses"]["200"]["content"]["application/json"]
             >
           ) => {
-            if (response.data.errors?.length !== 0) {
-              console.error(response.data.errors);
+            // errorが無い場合は空オブジェクトが返ってくるので、判定条件に含めておく
+            if (
+              response.data.errors === undefined ||
+              (response.data.errors !== undefined &&
+                Object.keys(response.data.errors).length > 0)
+            ) {
+              console.error(response.data.errors?.toString());
               await webhook.send({
                 text: `割り勘処理でエラー発生\n ID:${response.data.expenses?.[0].id}\n${response.data.errors?.toString()}`,
               });

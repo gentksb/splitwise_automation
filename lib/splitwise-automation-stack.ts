@@ -21,7 +21,7 @@ export class SplitWiseAutomationStack extends Stack {
       this,
       "splitwise_expense_automation",
       {
-        entry: "lambda/splitwise-automation/handler.ts",
+        entry: "lambda/spilitwise-automation/handler.ts",
         // secret managerは無料枠がなく、常にコストがかかるので使わない
         environment: {
           SPLITWISE_API_KEY_PARAMETER_NAME: "splitwise API key",
