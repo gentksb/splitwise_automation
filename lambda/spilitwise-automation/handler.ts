@@ -33,7 +33,7 @@ export const handler: Handler = async (
     throw new Error("環境変数が設定されていません");
   }
 
-  splitRecent20Expenses({
+  const resuleMessage = splitRecent20Expenses({
     SPLITWISE_API_KEY_PARAMETER_NAME,
     SLACK_WEBHOOK_URL,
     USER1_ID,
@@ -46,7 +46,7 @@ export const handler: Handler = async (
   return {
     statusCode: 200,
     body: JSON.stringify({
-      message: "処理が完了しました",
+      message: resuleMessage,
     }),
   };
 };

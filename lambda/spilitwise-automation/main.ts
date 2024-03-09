@@ -2,6 +2,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { splitExpense } from "./src/logic/splitExpense";
 import { isExpenseEligibleForSplitting } from "./src/validator/isExpenseEligibleForSplitting";
 import { components, paths } from "../../@types/splitwise";
+import { IncomingWebhook } from "@slack/webhook";
 
 interface Props {
   SPLITWISE_API_KEY_PARAMETER_NAME: string;
@@ -25,6 +26,7 @@ export const splitRecent20Expenses = async (props: Props) => {
     USER2_RATE,
     SPLITWISE_GROUP_ID,
   } = props;
+  const webhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
 
   const axios_option: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${SPLITWISE_API_KEY_PARAMETER_NAME}` },
@@ -112,10 +114,11 @@ export const splitRecent20Expenses = async (props: Props) => {
           ) => {
             if (response.data.errors?.length !== 0) {
               console.error(response.data.errors);
-              await axios.post(SLACK_WEBHOOK_URL, {
+              await webhook.send({
                 text: `割り勘処理でエラー発生\n ID:${response.data.expenses?.[0].id}\n${response.data.errors?.toString()}`,
               });
-              throw new Error("Splitwise APIへのPOST内容に問題があります");
+              return;
+              // 失敗したものはエラーを出力して終了
             } else {
               console.log("update_expense成功", response.data);
 
@@ -127,8 +130,8 @@ export const splitRecent20Expenses = async (props: Props) => {
                 `●${response.data.expenses?.[0].users?.[1].user?.first_name}の負担: ${response.data.expenses?.[0].users?.[1].owed_share}円\`\`\``,
               ].join("\n");
 
-              await axios
-                .post(SLACK_WEBHOOK_URL, {
+              await webhook
+                .send({
                   blocks: [
                     {
                       type: "header",
@@ -147,12 +150,9 @@ export const splitRecent20Expenses = async (props: Props) => {
                     },
                   ],
                 })
-                .then((res) =>
-                  console.log(
-                    `Slack post response: ${res.status}`,
-                    res.data.toString()
-                  )
-                );
+                .then((result) => {
+                  console.log("Slackへの通知に成功しました", result.text);
+                });
             }
           }
         );
