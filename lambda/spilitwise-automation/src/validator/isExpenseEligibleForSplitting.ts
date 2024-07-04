@@ -40,18 +40,28 @@ export const isExpenseEligibleForSplitting = ({
     return false;
   }
 
-  const { cost, users } = expense;
+  const { cost, users, created_at } = expense;
   const splitRate = parseFloat(
     (parseInt(users?.[0]?.owed_share ?? "0") / parseInt(cost)).toPrecision(2)
   );
+  const isCurrentMonth = (created_at: string | undefined) => {
+    if (created_at) {
+      return new Date(created_at).getMonth() === new Date().getMonth();
+    }
+    console.error("created_atが不正です", created_at);
+    return false;
+  };
 
   // グループIDが一致し、割り勘でない、かつ、割り勘率が0,1,USER1_RATE,USER2_RATE以外の場合は処理対象とする
+  // payment:true -> 精算レコード（個々の支払い終了ではない）
+  // 一度いじったものを再度いじらないようにするため、payment以前の対象は除外したいが判定が難しいので今月内のものだけを対象とする
   return (
     expense.payment === false &&
     expense.group_id?.toString() === SPLITWISE_GROUP_ID &&
     splitRate !== 0 &&
     splitRate !== 1 &&
     splitRate !== parseFloat(USER1_RATE) &&
-    splitRate !== parseFloat(USER2_RATE)
+    splitRate !== parseFloat(USER2_RATE) &&
+    isCurrentMonth(created_at)
   );
 };

@@ -111,6 +111,16 @@ describe("補正対象判定処理テスト", () => {
       isExpenseEligibleForSplittingWrapper(nonTargetGroupExpense)
     ).toBeFalsy();
   });
+
+  test("前月のデータは対象としない", () => {
+    const nonTargetGroupExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      created_at: "2021-08-31T00:00:00Z",
+    };
+    expect(
+      isExpenseEligibleForSplittingWrapper(nonTargetGroupExpense)
+    ).toBeFalsy();
+  });
 });
 
 describe("割り勘補正処理テスト", () => {
@@ -177,6 +187,7 @@ const basicExpense: components["schemas"]["expense"] = {
     },
   ],
   payment: false,
+  created_at: new Date().toISOString(),
 };
 
 const reSplittedExpenseBalance = {
