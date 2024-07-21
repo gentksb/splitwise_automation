@@ -4,7 +4,7 @@ import {
   APIGatewayEvent,
   Handler,
 } from "aws-lambda";
-import { splitRecent20Expenses } from "./main";
+import { splitRecentExpenses } from "./main";
 
 export const handler: Handler = async (
   event: APIGatewayEvent,
@@ -33,7 +33,7 @@ export const handler: Handler = async (
     throw new Error("環境変数が設定されていません");
   }
 
-  const resuleMessage = await splitRecent20Expenses({
+  const resuleMessage = await splitRecentExpenses({
     SPLITWISE_API_KEY_PARAMETER_NAME,
     SLACK_WEBHOOK_URL,
     USER1_ID,

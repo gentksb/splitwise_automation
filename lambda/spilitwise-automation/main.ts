@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { splitExpense } from "./src/logic/splitExpense";
-import { isExpenseEligibleForSplitting } from "./src/validator/isExpenseEligibleForSplitting";
+import { isNeededReSplit } from "./src/validator/isNeededResplit";
 import { components, paths } from "../../@types/splitwise";
 import { IncomingWebhook } from "@slack/webhook";
 
@@ -16,7 +16,7 @@ interface Props {
 
 type Expense = components["schemas"]["expense"];
 
-export const splitRecent20Expenses = async (props: Props) => {
+export const splitRecentExpenses = async (props: Props) => {
   const {
     SPLITWISE_API_KEY_PARAMETER_NAME,
     SLACK_WEBHOOK_URL,
@@ -30,6 +30,7 @@ export const splitRecent20Expenses = async (props: Props) => {
 
   const axios_option: AxiosRequestConfig = {
     headers: { Authorization: `Bearer ${SPLITWISE_API_KEY_PARAMETER_NAME}` },
+    params: { limit: 100 },
   };
 
   axios.interceptors.response.use(
@@ -48,10 +49,10 @@ export const splitRecent20Expenses = async (props: Props) => {
     axios_option
   );
 
-  const expensesList: Expense[] = getExpenses.data.expenses || [];
+  const expenses: Expense[] = getExpenses.data.expenses || [];
 
   // リストが空か0の場合は処理を終了
-  if (expensesList.length === 0) {
+  if (expenses.length === 0) {
     return {
       statusCode: 200,
       body: JSON.stringify({
@@ -60,9 +61,26 @@ export const splitRecent20Expenses = async (props: Props) => {
     };
   }
 
-  const willSplitExpenses = expensesList.filter((expense) =>
-    isExpenseEligibleForSplitting({
+  const firstDayOfCurrenMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+  ).toISOString();
+  // 最新の精算日を取得. expensesは支払い日の降順で取得されることが保証済み
+  // 精算日を取得できない場合は当月1日とする
+  const lastPaymentDate =
+    expenses.filter((expense) => expense.payment === true)[0].created_at ||
+    firstDayOfCurrenMonth;
+
+  // Todo: 判定ルールを個別に定義する
+  // isPayment => 精算レコード（個々の経費ではないレコード）判定
+  // isTargetGroup => 対象のグループIDかどうか
+  // isTargetSplitRate => 環境変数の割り勘率が設定されているか
+  // isAfterPayment => 最新の精算レコード以降のレコードかどうか
+  const willSplitExpenses = expenses.filter((expense) =>
+    isNeededReSplit({
       expense,
+      lastPaymentDate,
       USER1_RATE,
       USER2_RATE,
       SPLITWISE_GROUP_ID,
@@ -166,9 +184,9 @@ export const splitRecent20Expenses = async (props: Props) => {
   );
 
   const logMessage =
-    expensesList.length === 0
+    expenses.length === 0
       ? "取得対象の精算経費がありません"
-      : `直近${expensesList.length}の経費のうち、${willSplitExpenses.length}件を割り勘処理しました`;
+      : `直近${expenses.length}の経費のうち、${willSplitExpenses.length}件を割り勘処理しました`;
   console.log(logMessage);
 
   return { result: logMessage };

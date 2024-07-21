@@ -1,4 +1,4 @@
-import { isExpenseEligibleForSplitting } from "../lambda/spilitwise-automation/src/validator/isExpenseEligibleForSplitting";
+import { isNeededReSplit } from "../lambda/spilitwise-automation/src/validator/isNeededResplit";
 import { splitExpense } from "../lambda/spilitwise-automation/src/logic/splitExpense";
 import { components } from "../@types/splitwise";
 
@@ -15,12 +15,17 @@ if (
   throw new Error("環境変数が不足しています");
 }
 
+const firstDayOfCurrenMonth = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth(),
+  1
+).toISOString();
+
 // 環境変数を設定済みの関数
-const isExpenseEligibleForSplittingWrapper = (
-  expense: components["schemas"]["expense"]
-) =>
-  isExpenseEligibleForSplitting({
+const isNeededReSplitWrapper = (expense: components["schemas"]["expense"]) =>
+  isNeededReSplit({
     expense,
+    lastPaymentDate: firstDayOfCurrenMonth,
     USER1_RATE,
     USER2_RATE,
     SPLITWISE_GROUP_ID,
@@ -47,15 +52,13 @@ describe("異常系テスト", () => {
     };
 
     // console.errorの出力をAssertする
-    expect(isExpenseEligibleForSplittingWrapper(missingGroupIdData)).toBe(
-      false
-    );
+    expect(isNeededReSplitWrapper(missingGroupIdData)).toBe(false);
   });
 });
 
 describe("補正対象判定処理テスト", () => {
   test("典型例: 支払い前でデフォルト負担率（50:50）のデータを処理する", () => {
-    expect(isExpenseEligibleForSplittingWrapper(basicExpense)).toBeTruthy();
+    expect(isNeededReSplitWrapper(basicExpense)).toBeTruthy();
   });
 
   test("100%負担のデータは処理対象としない", () => {
@@ -77,7 +80,7 @@ describe("補正対象判定処理テスト", () => {
         },
       ],
     };
-    expect(isExpenseEligibleForSplittingWrapper(simpleDebtExpense)).toBeFalsy();
+    expect(isNeededReSplitWrapper(simpleDebtExpense)).toBeFalsy();
   });
 
   test("補正済みデータは処理対象としない", () => {
@@ -99,7 +102,7 @@ describe("補正対象判定処理テスト", () => {
         },
       ],
     };
-    expect(isExpenseEligibleForSplittingWrapper(reSplittedExpense)).toBeFalsy();
+    expect(isNeededReSplitWrapper(reSplittedExpense)).toBeFalsy();
   });
 
   test("指定したグループID以外は処理対象としない", () => {
@@ -107,19 +110,15 @@ describe("補正対象判定処理テスト", () => {
       ...basicExpense,
       group_id: 88888888,
     };
-    expect(
-      isExpenseEligibleForSplittingWrapper(nonTargetGroupExpense)
-    ).toBeFalsy();
+    expect(isNeededReSplitWrapper(nonTargetGroupExpense)).toBeFalsy();
   });
 
-  test("前月のデータは対象としない", () => {
+  test("Payment Date以前のデータは対象としない", () => {
     const nonTargetGroupExpense: components["schemas"]["expense"] = {
       ...basicExpense,
       created_at: "2021-08-31T00:00:00Z",
     };
-    expect(
-      isExpenseEligibleForSplittingWrapper(nonTargetGroupExpense)
-    ).toBeFalsy();
+    expect(isNeededReSplitWrapper(nonTargetGroupExpense)).toBeFalsy();
   });
 });
 
