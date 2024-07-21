@@ -59,6 +59,5 @@ export const isNeededReSplit = ({
 
   // グループIDが一致し、割り勘でない、かつ、割り勘率が0,1,USER1_RATE,USER2_RATE以外の場合は処理対象とする
   // payment:true -> 精算レコード（個々の支払い終了ではない）
-  // 一度いじったものを再度いじらないようにするため、payment以前の対象は除外したいが判定が難しいので今月内のものだけを対象とする
   return !isPayment && isTargetGroup && isTargetSplitRate && isAfterPayment;
 };
