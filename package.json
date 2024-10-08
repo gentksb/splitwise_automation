@@ -27,7 +27,7 @@
     "typescript": "~5.3.3"
   },
   "dependencies": {
-    "@slack/webhook": "^7.0.2",
+    "@slack/webhook": "^7.0.3",
     "aws-cdk-lib": "2.126.0",
     "aws-lambda": "^1.0.7",
     "axios": "^1.6.7",
