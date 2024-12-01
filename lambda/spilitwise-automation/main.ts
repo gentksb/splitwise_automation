@@ -68,8 +68,9 @@ export const splitRecentExpenses = async (props: Props) => {
   ).toISOString();
   // 最新の精算日を取得. expensesは支払い日の降順で取得されることが保証済み
   // 精算日を取得できない場合は当月1日とする
+  // created_atが見つからない場合に最初の日時を取得するためにfind()を利用
   const lastPaymentDate =
-    expenses.filter((expense) => expense.payment === true)[0].created_at ||
+    expenses.find((expense) => expense.payment === true)?.created_at ||
     firstDayOfCurrenMonth;
 
   // Todo: 判定ルールを個別に定義する
