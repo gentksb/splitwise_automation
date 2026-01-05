@@ -1,0 +1,17 @@
+name = "splitwise-automation"
+main = "src/index.ts"
+compatibility_date = "2025-01-05"
+node_compat = true
+
+# Cron Trigger - 4時間ごとに実行
+[triggers]
+crons = ["0 */4 * * *"]
+
+# 環境変数（デプロイ時にSecretsとして設定する必要があります）
+# wrangler secret put SPLITWISE_API_KEY
+# wrangler secret put SLACK_WEBHOOK_URL
+# wrangler secret put SPLITWISE_GROUP_ID
+# wrangler secret put USER1_ID
+# wrangler secret put USER2_ID
+# wrangler secret put USER1_RATE
+# wrangler secret put USER2_RATE
