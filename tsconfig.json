@@ -18,9 +18,10 @@
     "inlineSources": true,
     "experimentalDecorators": true,
     "strictPropertyInitialization": false,
-    "types": ["@cloudflare/workers-types", "jest"],
+    "esModuleInterop": true,
+    "types": ["@cloudflare/workers-types", "jest", "node"],
     "typeRoots": ["./node_modules/@types"]
   },
-  "include": ["src/**/*", "@types/**/*"],
-  "exclude": ["node_modules", "dist", "test"]
+  "include": ["src/**/*", "@types/**/*", "test/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
