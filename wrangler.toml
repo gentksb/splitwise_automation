@@ -1,13 +1,13 @@
 name = "splitwise-automation"
 main = "src/index.ts"
 compatibility_date = "2025-01-05"
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 # Cron Trigger - 4時間ごとに実行
 [triggers]
 crons = ["0 */4 * * *"]
 
-# Observability設定 - ログとトレースの監視
+# Observability設定 - ログの監視
 [observability]
 enabled = false
 head_sampling_rate = 1
@@ -17,11 +17,6 @@ enabled = true
 head_sampling_rate = 1
 persist = true
 invocation_logs = true
-
-[observability.traces]
-enabled = true
-persist = true
-head_sampling_rate = 1
 
 # 環境変数（デプロイ時にSecretsとして設定する必要があります）
 # wrangler secret put SPLITWISE_API_KEY
