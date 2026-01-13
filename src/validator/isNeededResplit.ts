@@ -1,4 +1,4 @@
-import { components } from "../../../../@types/splitwise";
+import { components } from "../../@types/splitwise";
 
 type Expense = components["schemas"]["expense"];
 

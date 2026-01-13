@@ -1,5 +1,5 @@
-import { isNeededReSplit } from "../lambda/spilitwise-automation/src/validator/isNeededResplit";
-import { splitExpense } from "../lambda/spilitwise-automation/src/logic/splitExpense";
+import { isNeededReSplit } from "../src/validator/isNeededResplit";
+import { splitExpense } from "../src/logic/splitExpense";
 import { components } from "../@types/splitwise";
 
 const { USER1_RATE, USER2_RATE, USER1_ID, USER2_ID, SPLITWISE_GROUP_ID } =
