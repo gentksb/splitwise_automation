@@ -16,7 +16,6 @@
     "prettier": "^3.4.1",
     "ts-jest": "^29.2.5",
     "typescript": "~5.7.2",
-    "wrangler": "^4.0.0"
-  },
-  "dependencies": {}
+    "wrangler": "^4.58.0"
+  }
 }
