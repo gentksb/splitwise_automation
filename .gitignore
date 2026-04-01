@@ -1,10 +1,13 @@
 *.js
 !jest.config.js
 node_modules
+pnpm-debug.log
 
 # Cloudflare Workers
 .dev.vars
 .wrangler
 dist
 
-.env**
+# 環境変数ファイル
+.env
+.env.*
