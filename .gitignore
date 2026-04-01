@@ -8,4 +8,6 @@ pnpm-debug.log
 .wrangler
 dist
 
-.env**
+# 環境変数ファイル
+.env
+.env.*

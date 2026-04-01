@@ -25,7 +25,7 @@ pnpm typegen       # Splitwise API型定義を生成
 
 ### ローカル開発
 
-`.dev.vars` ファイルを作成して環境変数を設定する（`.gitignore` 対象）：
+`.env` ファイルを作成して環境変数を設定する（`.gitignore` 対象）：
 
 ```
 SPLITWISE_API_KEY=your_api_key
@@ -36,6 +36,8 @@ USER2_ID=user2_id
 USER1_RATE=0.6
 USER2_RATE=0.4
 ```
+
+> **Note**: Wrangler 4.x は `.dev.vars` が存在しない場合、`.env` を自動的に読み込む（`CLOUDFLARE_LOAD_DEV_VARS_FROM_DOT_ENV` デフォルト有効）。
 
 ### デプロイ前の準備
 
