@@ -10,10 +10,10 @@ Cloudflare Workersで動作するSplitwise割り勘自動化ツール。
 ## コマンド
 
 ```bash
-npm test          # ユニットテスト実行
-npm run dev       # ローカル開発サーバー起動（wrangler dev）
-npm run deploy    # Cloudflare Workersへデプロイ
-npm run typegen   # Splitwise Swagger定義から型定義を生成
+pnpm test         # ユニットテスト実行
+pnpm dev          # ローカル開発サーバー起動（wrangler dev）
+pnpm deploy       # Cloudflare Workersへデプロイ
+pnpm typegen      # Splitwise Swagger定義から型定義を生成
 ```
 
 ## アーキテクチャ
@@ -57,6 +57,8 @@ test/splitExpense.test.ts     # ユニットテスト（Jest + ts-jest）
 
 ## 開発時の注意
 
-- `@types/splitwise.d.ts` は `npm run typegen` で生成されるため、手動編集しない
+- パッケージマネージャーは **pnpm**。`npm install` は使わない
+- `.npmrc` の `min-release-age=7` により、公開から7日未満のパッケージはインストール拒否（サプライチェーン攻撃対策）
+- `@types/splitwise.d.ts` は `pnpm typegen` で生成されるため、手動編集しない
 - ローカルテスト時は `.dev.vars` ファイルで環境変数を設定する（`.gitignore` 対象）
 - テストは環境変数なしで実行できる（ロジック層のみテスト）

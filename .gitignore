@@ -1,6 +1,7 @@
 *.js
 !jest.config.js
 node_modules
+pnpm-debug.log
 
 # Cloudflare Workers
 .dev.vars
