@@ -84,21 +84,24 @@ describe("補正対象判定処理テスト", () => {
   });
 
   test("補正済みデータは処理対象としない", () => {
+    const cost = 1000;
+    const nonPayerOwed = cost * parseFloat(USER1_RATE);
+    const payerOwed = cost * parseFloat(USER2_RATE);
     const reSplittedExpense: components["schemas"]["expense"] = {
       ...basicExpense,
       repayments: [
         {
-          amount: "600.0",
+          amount: nonPayerOwed.toFixed(1),
         },
       ],
       users: [
         {
-          owed_share: "600.0",
-          net_balance: "-600.0",
+          owed_share: nonPayerOwed.toFixed(1),
+          net_balance: (-nonPayerOwed).toFixed(1),
         },
         {
-          owed_share: "400.0",
-          net_balance: "600.0",
+          owed_share: payerOwed.toFixed(1),
+          net_balance: nonPayerOwed.toFixed(1),
         },
       ],
     };
@@ -127,6 +130,7 @@ describe("割り勘補正処理テスト", () => {
     expect(splitExpenseWrapper(basicExpense)).toEqual(reSplittedExpenseBalance);
   });
   test("割り切れない場合の端数を処理できる", () => {
+    const oddCost = 999;
     const oddBlanceExpense = {
       ...basicExpense,
       cost: "999",
@@ -143,9 +147,10 @@ describe("割り勘補正処理テスト", () => {
         },
       ],
     };
+    const payerOwedShare = Math.round(oddCost * parseFloat(USER2_RATE));
     const oddExpenseReSplittedBalance = {
-      payerOwedShare: 400,
-      nonPayerOwedShare: 599,
+      payerOwedShare,
+      nonPayerOwedShare: oddCost - payerOwedShare,
     };
 
     expect(splitExpenseWrapper(oddBlanceExpense)).toEqual(
