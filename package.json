@@ -9,7 +9,7 @@
     "typegen": "openapi-typescript splitwise/swagger.json -o @types/splitwise.d.ts"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260430.1",
+    "@cloudflare/workers-types": "^4.20260505.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^25.6.0",
     "jest": "^30.3.0",
