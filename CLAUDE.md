@@ -58,7 +58,7 @@ test/splitExpense.test.ts     # ユニットテスト（Jest + ts-jest）
 ## 開発時の注意
 
 - パッケージマネージャーは **pnpm**。`npm install` は使わない
-- `.npmrc` の `min-release-age=7` により、公開から7日未満のパッケージはインストール拒否（サプライチェーン攻撃対策）
+- `.npmrc` の `minimum-release-age=10080`（単位は分、7日相当）により、公開から7日未満のパッケージはインストール拒否（サプライチェーン攻撃対策）
 - `@types/splitwise.d.ts` は `pnpm typegen` で生成されるため、手動編集しない
 - ローカル開発時の環境変数は `.env` ファイルで設定する（`.gitignore` 対象）。Wrangler 4.x は `.dev.vars` が存在しない場合 `.env` を自動読み込みする
 - テスト実行には `USER1_RATE`, `USER2_RATE`, `USER1_ID`, `USER2_ID`, `SPLITWISE_GROUP_ID` の環境変数が必要（`.env` で設定するか、コマンド時に渡す）
