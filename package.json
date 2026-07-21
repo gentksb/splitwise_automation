@@ -11,7 +11,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260701.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.1.0",
+    "@types/node": "^26.1.1",
     "jest": "^30.4.2",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.4",
