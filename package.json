@@ -14,7 +14,7 @@
     "@types/node": "^26.1.1",
     "jest": "^30.4.2",
     "openapi-typescript": "^7.13.0",
-    "prettier": "^3.9.5",
+    "prettier": "^3.9.6",
     "ts-jest": "^29.4.11",
     "typescript": "~6.0.3",
     "wrangler": "^4.111.0"
