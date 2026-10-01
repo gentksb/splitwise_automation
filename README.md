@@ -4,13 +4,13 @@ Cloudflare Workersで動作する、Splitwiseグループの割り勘補正自�
 
 ## 概要
 
-特定のSplitwiseグループで50:50になっている経費を指定の傾斜配分に修正し、Slackへ通知する。Cron Triggerにより4時間ごとに自動実行。
+特定のSplitwiseグループで50:50になっている経費を指定の傾斜配分に修正し、Slackへ通知する。Cron Triggerにより1時間ごとに自動実行。
 
 ## 技術スタック
 
 - **Cloudflare Workers** + TypeScript
 - **Wrangler CLI** - デプロイ・ローカル開発
-- **Cron Triggers** - 4時間ごと自動実行（`0 */4 * * *`）
+- **Cron Triggers** - 1時間ごと自動実行（`0 * * * *`）
 - 外部依存ゼロ（開発依存のみ）
 
 ## ワークフロー

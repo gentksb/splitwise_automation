@@ -5,7 +5,7 @@
 ## プロジェクト概要
 
 Cloudflare Workersで動作するSplitwise割り勘自動化ツール。
-特定のSplitwiseグループで50:50になっている経費を、指定の傾斜配分に修正し、Slackへ通知する。Cron Triggerにより4時間ごとに自動実行。
+特定のSplitwiseグループで50:50になっている経費を、指定の傾斜配分に修正し、Slackへ通知する。Cron Triggerにより1時間ごとに自動実行。
 
 ## コマンド
 
@@ -19,7 +19,7 @@ pnpm typegen      # Splitwise Swagger定義から型定義を生成
 ## アーキテクチャ
 
 - **ランタイム**: Cloudflare Workers (TypeScript)
-- **スケジューラ**: Cron Triggers（4時間ごと: `0 */4 * * *`）
+- **スケジューラ**: Cron Triggers（1時間ごと: `0 * * * *`）
 - **外部依存**: ゼロ（開発依存のみ）
 
 ### ファイル構成
