@@ -1,5 +1,6 @@
 import { splitExpense } from "./logic/splitExpense";
 import { isNeededReSplit } from "./validator/isNeededResplit";
+import { findLastPaymentDate } from "./logic/findLastPaymentDate";
 import { components, paths } from "../@types/splitwise";
 
 type Expense = components["schemas"]["expense"];
@@ -44,7 +45,7 @@ const splitRecentExpenses = async (env: Env) => {
   // Splitwise API呼び出し用のfetch関数
   const splitwiseRequest = async (
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
   ) => {
     const response = await fetch(
       `https://secure.splitwise.com/api/v3.0${endpoint}`,
@@ -55,7 +56,7 @@ const splitRecentExpenses = async (env: Env) => {
           "Content-Type": "application/json",
           ...options.headers,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -67,10 +68,27 @@ const splitRecentExpenses = async (env: Env) => {
   };
 
   // 本処理
-  const getExpensesData: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"] =
-    await splitwiseRequest("/get_expenses?limit=100");
+  // 対象グループの経費のみを取得し、精算レコードが見つかるまでページングする
+  // （APIキー失効などで未処理期間が長くなった場合でも、前回精算以降の経費を取りこぼさないため）
+  const PAGE_SIZE = 100;
+  const MAX_PAGES = 10;
+  const expenses: Expense[] = [];
+  let foundPaymentDate: string | undefined;
 
-  const expenses: Expense[] = getExpensesData.expenses || [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const getExpensesData: paths["/get_expenses"]["get"]["responses"]["200"]["content"]["application/json"] =
+      await splitwiseRequest(
+        `/get_expenses?group_id=${SPLITWISE_GROUP_ID}&limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`,
+      );
+    const pageExpenses = getExpensesData.expenses || [];
+    expenses.push(...pageExpenses);
+
+    // 最新の精算日を取得. expensesは支払い日の降順で取得されることが保証済み
+    foundPaymentDate = findLastPaymentDate(expenses, SPLITWISE_GROUP_ID);
+    if (foundPaymentDate !== undefined || pageExpenses.length < PAGE_SIZE) {
+      break;
+    }
+  }
 
   // リストが空か0の場合は処理を終了
   if (expenses.length === 0) {
@@ -82,18 +100,13 @@ const splitRecentExpenses = async (env: Env) => {
     };
   }
 
-  const firstDayOfCurrentMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1
-  ).toISOString();
-
-  // 最新の精算日を取得. expensesは支払い日の降順で取得されることが保証済み
-  // 精算日を取得できない場合は当月1日とする
-  // created_atが見つからない場合に最初の日時を取得するためにfind()を利用
-  const lastPaymentDate =
-    expenses.find((expense) => expense.payment === true)?.created_at ||
-    firstDayOfCurrentMonth;
+  // 精算レコードが見つからない場合は、取得した全経費が前回精算以降のものとみなす
+  if (foundPaymentDate === undefined) {
+    console.warn(
+      `精算レコードが見つかりませんでした。取得した${expenses.length}件すべてを判定対象にします`,
+    );
+  }
+  const lastPaymentDate = foundPaymentDate ?? new Date(0).toISOString();
 
   // Todo: 判定ルールを個別に定義する
   // isPayment => 精算レコード（個々の経費ではないレコード）判定
@@ -107,7 +120,7 @@ const splitRecentExpenses = async (env: Env) => {
       USER1_RATE,
       USER2_RATE,
       SPLITWISE_GROUP_ID,
-    })
+    }),
   );
 
   const makeNewSplitData = (expense: Expense) => {
@@ -191,7 +204,7 @@ const splitRecentExpenses = async (env: Env) => {
       } catch (error) {
         console.error("処理エラー:", error);
       }
-    })
+    }),
   );
 
   const logMessage =
@@ -207,7 +220,7 @@ export default {
   async scheduled(
     event: ScheduledEvent,
     env: Env,
-    ctx: ExecutionContext
+    ctx: ExecutionContext,
   ): Promise<void> {
     // Cron Triggerから実行される
     ctx.waitUntil(splitRecentExpenses(env));
@@ -247,7 +260,7 @@ export default {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
     }
   },
