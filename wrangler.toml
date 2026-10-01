@@ -3,9 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2025-01-05"
 compatibility_flags = ["nodejs_compat"]
 
-# Cron Trigger - 4時間ごとに実行
+# Cron Trigger - 1時間ごとに実行
 [triggers]
-crons = ["0 */4 * * *"]
+crons = ["0 * * * *"]
 
 # Observability設定 - ログとトレースの監視
 [observability]

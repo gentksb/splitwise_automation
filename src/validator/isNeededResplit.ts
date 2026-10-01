@@ -26,7 +26,7 @@ export const isNeededReSplit = ({
     console.error(
       "Split Rateが不正です（値が設定されていないか、合計が1ではありません）",
       USER1_RATE,
-      USER2_RATE
+      USER2_RATE,
     );
     throw new Error("split rate error");
   }
@@ -45,10 +45,11 @@ export const isNeededReSplit = ({
 
   const { cost, users, created_at } = expense;
   const splitRate = parseFloat(
-    (parseInt(users?.[0]?.owed_share ?? "0") / parseInt(cost)).toPrecision(2)
+    (parseInt(users?.[0]?.owed_share ?? "0") / parseInt(cost)).toPrecision(2),
   );
 
   const isPayment = expense.payment === true;
+  const isDeleted = expense.deleted_at != null;
   const isTargetGroup = expense.group_id?.toString() === SPLITWISE_GROUP_ID;
   const isAfterPayment = new Date(created_at) >= new Date(lastPaymentDate);
   const isTargetSplitRate =
@@ -59,5 +60,12 @@ export const isNeededReSplit = ({
 
   // グループIDが一致し、割り勘でない、かつ、割り勘率が0,1,USER1_RATE,USER2_RATE以外の場合は処理対象とする
   // payment:true -> 精算レコード（個々の支払い終了ではない）
-  return !isPayment && isTargetGroup && isTargetSplitRate && isAfterPayment;
+  // deleted_atあり -> 削除済みの経費
+  return (
+    !isPayment &&
+    !isDeleted &&
+    isTargetGroup &&
+    isTargetSplitRate &&
+    isAfterPayment
+  );
 };

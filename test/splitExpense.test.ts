@@ -1,5 +1,6 @@
 import { isNeededReSplit } from "../src/validator/isNeededResplit";
 import { splitExpense } from "../src/logic/splitExpense";
+import { findLastPaymentDate } from "../src/logic/findLastPaymentDate";
 import { components } from "../@types/splitwise";
 
 const { USER1_RATE, USER2_RATE, USER1_ID, USER2_ID, SPLITWISE_GROUP_ID } =
@@ -18,7 +19,7 @@ if (
 const firstDayOfCurrenMonth = new Date(
   new Date().getFullYear(),
   new Date().getMonth(),
-  1
+  1,
 ).toISOString();
 
 // 環境変数を設定済みの関数
@@ -123,6 +124,96 @@ describe("補正対象判定処理テスト", () => {
     };
     expect(isNeededReSplitWrapper(nonTargetGroupExpense)).toBeFalsy();
   });
+
+  test("削除済みのデータは処理対象としない", () => {
+    const deletedExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      deleted_at: new Date().toISOString(),
+    };
+    expect(isNeededReSplitWrapper(deletedExpense)).toBeFalsy();
+  });
+});
+
+describe("最新精算日の取得テスト", () => {
+  // basicExpenseはファイル末尾で定義されているため、テスト実行時に参照する
+  const makePaymentExpense = (): components["schemas"]["expense"] => ({
+    ...basicExpense,
+    payment: true,
+    created_at: "2026-08-31T00:00:00Z",
+  });
+
+  test("対象グループの最新の精算レコードの日時を返す", () => {
+    const paymentExpense = makePaymentExpense();
+    const olderPayment = {
+      ...paymentExpense,
+      created_at: "2026-07-31T00:00:00Z",
+    };
+    expect(
+      findLastPaymentDate(
+        [basicExpense, paymentExpense, olderPayment],
+        SPLITWISE_GROUP_ID,
+      ),
+    ).toBe("2026-08-31T00:00:00Z");
+  });
+
+  test("他グループの精算レコードは無視する", () => {
+    const paymentExpense = makePaymentExpense();
+    const otherGroupPayment = {
+      ...paymentExpense,
+      group_id: 88888888,
+      created_at: "2026-09-30T00:00:00Z",
+    };
+    expect(
+      findLastPaymentDate(
+        [otherGroupPayment, basicExpense, paymentExpense],
+        SPLITWISE_GROUP_ID,
+      ),
+    ).toBe("2026-08-31T00:00:00Z");
+  });
+
+  test("削除済みの精算レコードは無視する", () => {
+    const paymentExpense = makePaymentExpense();
+    const deletedPayment = {
+      ...paymentExpense,
+      created_at: "2026-09-30T00:00:00Z",
+      deleted_at: "2026-09-30T01:00:00Z",
+    };
+    expect(
+      findLastPaymentDate(
+        [deletedPayment, basicExpense, paymentExpense],
+        SPLITWISE_GROUP_ID,
+      ),
+    ).toBe("2026-08-31T00:00:00Z");
+  });
+
+  test("精算レコードが無い場合はundefinedを返す（当月1日に丸めない）", () => {
+    expect(
+      findLastPaymentDate([basicExpense], SPLITWISE_GROUP_ID),
+    ).toBeUndefined();
+  });
+
+  test("精算レコードが無い場合、前月の経費も処理対象になる", () => {
+    const lastMonthExpense: components["schemas"]["expense"] = {
+      ...basicExpense,
+      created_at: new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() - 1,
+        15,
+      ).toISOString(),
+    };
+    const lastPaymentDate =
+      findLastPaymentDate([lastMonthExpense], SPLITWISE_GROUP_ID) ??
+      new Date(0).toISOString();
+    expect(
+      isNeededReSplit({
+        expense: lastMonthExpense,
+        lastPaymentDate,
+        USER1_RATE,
+        USER2_RATE,
+        SPLITWISE_GROUP_ID,
+      }),
+    ).toBeTruthy();
+  });
 });
 
 describe("割り勘補正処理テスト", () => {
@@ -154,7 +245,7 @@ describe("割り勘補正処理テスト", () => {
     };
 
     expect(splitExpenseWrapper(oddBlanceExpense)).toEqual(
-      oddExpenseReSplittedBalance
+      oddExpenseReSplittedBalance,
     );
   });
 });
